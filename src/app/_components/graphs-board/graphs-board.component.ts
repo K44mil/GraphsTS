@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Vertex } from '../../_models/vertex';
+import { GraphService } from '../../_services/';
+import { Graph, Vertex, Edge } from '../../_models';
 
 @Component({
   selector: 'app-graphs-board',
@@ -8,10 +9,33 @@ import { Vertex } from '../../_models/vertex';
 })
 export class GraphsBoardComponent implements OnInit {
 
-  constructor() { }
+  graph: Graph;
+  vertexs: Vertex[] = [];
+  edges: Edge[] = [];
+
+  constructor(
+    private graphService: GraphService
+  ) { }
 
   ngOnInit() {
-    
+    //> TEST CODE - TO REMOVE
+    this.initNewGraph();
+    const ed = new Edge(1, 1, 1, 0, 0, 300, 400);
+    console.log(ed);
+    this.graphService.addEdge(ed);
+    this.updateGraph();
+    //<
+  }
+
+  initNewGraph() {
+    this.graphService.initNewGraph();
+    this.updateGraph();
+  }
+
+  updateGraph() {
+    this.graph = this.graphService.graph;
+    this.vertexs = this.graphService.vertexs;
+    this.edges = this.graphService.edges;
   }
 
 }

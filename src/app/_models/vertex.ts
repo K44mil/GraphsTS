@@ -14,9 +14,9 @@ export class Vertex {
         cx: number,
         cy: number,
         r: number,
-        fill: string,
-        stroke: string,
-        strokeWidth: number
+        fill: string = 'balck',
+        stroke: string = 'black',
+        strokeWidth: number = 0
     ) {
         this._id = id;
         this._cx = cx;
@@ -27,7 +27,7 @@ export class Vertex {
         this._strokeWidth = strokeWidth;
     }
 
-    // getters and setters
+    // Getters and Setters
     get id(): number {
         return this._id;
     }
