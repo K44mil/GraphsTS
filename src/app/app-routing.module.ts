@@ -1,8 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { GraphsBoardComponent } from './_components/graphs-board/graphs-board.component';
 
 
-const routes: Routes = [];
+const routes: Routes = [
+  { path: 'graphs', component: GraphsBoardComponent }
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
