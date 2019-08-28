@@ -9,6 +9,7 @@ export class Edge {
     private _y2: number;
     private _stroke: string;
     private _strokeWidth: number;
+    private _isActive: boolean;
 
     // Constructor
     constructor(
@@ -20,7 +21,8 @@ export class Edge {
         x2: number,
         y2: number,
         stroke: string = 'black',
-        strokeWidth: number = 2
+        strokeWidth: number = 3,
+        isActive: boolean = false
     ) {
         this._id = id;
         this._v1 = v1;
@@ -31,6 +33,20 @@ export class Edge {
         this._y2 = y2;
         this._stroke = stroke;
         this._strokeWidth = strokeWidth;
+        this._isActive = isActive;
+    }
+
+    // Public methods
+    setActive() {
+        this._isActive = true;
+        this._stroke = 'green';
+        this._strokeWidth = 5;
+    }
+
+    setDisabled() {
+        this._isActive = false;
+        this._stroke = 'black';
+        this._strokeWidth = 3;
     }
     
     // Getters and Setters
@@ -104,6 +120,14 @@ export class Edge {
 
     set strokeWidth(val: number) {
         this._strokeWidth = val;
+    }
+
+    get isActive(): boolean {
+        return this._isActive;
+    }
+
+    set isActive(val: boolean) {
+        this._isActive = val;
     }
 
 }

@@ -1,3 +1,4 @@
+
 export class Vertex {
 
     private _id: number;
@@ -7,6 +8,7 @@ export class Vertex {
     private _fill: string;
     private _stroke: string;
     private _strokeWidth: number;
+    private _isActive: boolean;
 
     // Constructor
     constructor(
@@ -14,9 +16,10 @@ export class Vertex {
         cx: number,
         cy: number,
         r: number,
-        fill: string = 'balck',
+        fill: string = 'black',
         stroke: string = 'black',
-        strokeWidth: number = 0
+        strokeWidth: number = 0,
+        isActive: boolean = false
     ) {
         this._id = id;
         this._cx = cx;
@@ -25,6 +28,22 @@ export class Vertex {
         this._fill = fill;
         this._stroke = stroke;
         this._strokeWidth = strokeWidth;
+        this._isActive = isActive;
+    }
+
+    // Public Methods
+    setActive() {
+        this._isActive = true;
+        this._fill = 'green';
+        this._stroke = 'aquamarine';
+        this._strokeWidth = 3;
+    }
+
+    setDisabled() {
+        this._isActive = false;
+        this._fill = 'black';
+        this._stroke = 'black';
+        this._strokeWidth = 0;
     }
 
     // Getters and Setters
@@ -82,5 +101,13 @@ export class Vertex {
 
     set strokeWidth(val: number) {
         this._strokeWidth = val;
+    }
+
+    get isActive(): boolean {
+        return this._isActive;
+    }
+
+    set isActive(val: boolean) {
+        this._isActive = val;
     }
 }

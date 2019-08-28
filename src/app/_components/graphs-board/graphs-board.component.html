@@ -5,7 +5,10 @@
             id="svgGraphsBoard"
             width="1000"
             height="800"
-            viewBox="0 0 1000 800">
+            viewBox="0 0 1000 800"
+            (dblclick)="drawNewVertex($event)"
+            (mousemove)="moveDraggedVertex($event)"
+            (mouseup)="dropDraggedVertex($event)">
 
             <line *ngFor="let edge of edges"
             [attr.x1]="edge.x1"
@@ -13,10 +16,19 @@
             [attr.x2]="edge.x2"
             [attr.y2]="edge.y2"
             [attr.stroke]="edge.stroke"
-            [attr.stroke-width]="edge.strokeWidth">
+            [attr.stroke-width]="edge.strokeWidth"
+            (click)="onClickEdge(edge.id)">
             </line>
 
-            <circle *ngFor="let vertex of vertexs">
+            <circle *ngFor="let vertex of vertexs"
+            [attr.cx]="vertex.cx"
+            [attr.cy]="vertex.cy"
+            [attr.r]="vertex.r"
+            [attr.fill]="vertex.fill"
+            [attr.stroke]="vertex.stroke"
+            [attr.stroke-width]="vertex.strokeWidth"
+            (click)="onClickVertex(vertex.id)"
+            (mousedown)="putDraggableVertex(vertex.id)">
             </circle>
 
             </svg>
@@ -35,9 +47,8 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-12">
-            Graph Menu
-        </div>
+    <div class="row" style="margin-top: 10px">
+            <button class="btn btn-warning" (click)="clearGraphsBoard()">RESET</button>
+            <button class="btn btn-danger" (click)="removeFromGraphsBoard()">REMOVE</button> 
     </div>
 </div>
