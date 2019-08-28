@@ -56,9 +56,11 @@ export class GraphService {
   }
 
   addNewEdge(v1: Vertex, v2: Vertex) {
-    const newEdgeId = this._edges.length ? Math.max(...this._edges.map(x => x.id)) + 1 : 1;
-    const edge = new Edge(newEdgeId, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy);
-    this.addEdge(edge);
+    if (!this.edgeExists(v1.id, v2.id)) {
+      const newEdgeId = this._edges.length ? Math.max(...this._edges.map(x => x.id)) + 1 : 1;
+      const edge = new Edge(newEdgeId, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy);
+      this.addEdge(edge);
+    }
   }
 
   onClickVertex(id: number) {
@@ -140,6 +142,16 @@ export class GraphService {
     this._edges.push(edge);
   }
 
+  edgeExists(v1: number, v2: number): boolean {
+    let result: boolean = false;
+    this._edges.forEach(e => {
+      if ((e.v1 === v1 && e.v2 === v2) || (e.v1 === v2 && e.v2 === v1)) {
+        result = true;
+      }
+    });
+    return result;
+  }
+
   getVertexById(id: number): Vertex {
     let vertex = null;
     this._vertexs.forEach(v => {
@@ -173,22 +185,39 @@ export class GraphService {
       const { x, y } = this.svgGraphicsService.parsePoint(e);
       this._selectedDraggedVertex.cx = x;
       this._selectedDraggedVertex.cy = y;
-      this.updateEdgesCoords();
+      this.updateEdgesCoords(this._selectedDraggedVertex);
     }
   }
 
-  updateEdgesCoords() {
+  moveGraph(e: MouseEvent) {
     if (this._selectedDraggedVertex) {
-      this._edges.forEach(e => {
-        if (e.v1 === this._selectedDraggedVertex.id) {
-          e.x1 = this._selectedDraggedVertex.cx;
-          e.y1 = this._selectedDraggedVertex.cy;
-        } else if (e.v2 === this._selectedDraggedVertex.id) {
-          e.x2 = this._selectedDraggedVertex.cx;
-          e.y2 = this._selectedDraggedVertex.cy;
+      const { x, y } = this.svgGraphicsService.parsePoint(e);
+      const dx = x - this._selectedDraggedVertex.cx;
+      const dy = y - this._selectedDraggedVertex.cy;
+
+      this._selectedDraggedVertex.cx = x;
+      this._selectedDraggedVertex.cy = y;
+
+      this._vertexs.forEach(v => {
+        if (v !== this._selectedDraggedVertex) {
+          v.cx += dx;
+          v.cy += dy;
         }
+        this.updateEdgesCoords(v);
       });
     }
+  }
+
+  updateEdgesCoords(vertex: Vertex) {
+    this._edges.forEach(e => {
+      if (e.v1 === vertex.id) {
+        e.x1 = vertex.cx;
+        e.y1 = vertex.cy;
+      } else if (e.v2 === vertex.id) {
+        e.x2 = vertex.cx;
+        e.y2 = vertex.cy;
+      }
+    });
   }
 
   get graph(): Graph {

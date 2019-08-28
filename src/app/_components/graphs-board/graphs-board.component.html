@@ -7,7 +7,7 @@
             height="800"
             viewBox="0 0 1000 800"
             (dblclick)="drawNewVertex($event)"
-            (mousemove)="moveDraggedVertex($event)"
+            (mousemove)="onMouseMoveOnBoard($event)"
             (mouseup)="dropDraggedVertex($event)">
 
             <line *ngFor="let edge of edges"
@@ -28,7 +28,7 @@
             [attr.stroke]="vertex.stroke"
             [attr.stroke-width]="vertex.strokeWidth"
             (click)="onClickVertex(vertex.id)"
-            (mousedown)="putDraggableVertex(vertex.id)">
+            (mousedown)="selectDraggableVertex(vertex.id)">
             </circle>
 
             </svg>
@@ -42,7 +42,8 @@
                     <h5>Graph Info</h5>
                 </div>
                 <div class="card-body">
-                    ...
+                    <p>Graph order: {{ graphOrder }}</p>
+                    <p>Graph size: {{ graphSize }}</p>
                 </div>
             </div>
         </div>

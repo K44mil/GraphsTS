@@ -40,7 +40,7 @@ export class Edge {
     setActive() {
         this._isActive = true;
         this._stroke = 'green';
-        this._strokeWidth = 5;
+        this._strokeWidth = 6;
     }
 
     setDisabled() {

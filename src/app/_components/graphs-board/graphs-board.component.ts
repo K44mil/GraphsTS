@@ -12,11 +12,14 @@ export class GraphsBoardComponent implements OnInit {
   graph: Graph;
   vertexs: Vertex[] = [];
   edges: Edge[] = [];
+  graphOrder: number = 0;
+  graphSize: number = 0;
   
   /**
    * MODES:
    * 0 - draw graph
    * 1 - stretch graph
+   * 2 - move graph
    */
   mode: number;
 
@@ -38,6 +41,12 @@ export class GraphsBoardComponent implements OnInit {
     this.graph = this.graphService.graph;
     this.vertexs = this.graphService.vertexs;
     this.edges = this.graphService.edges;
+    this.updateGraphInfoView();
+  }
+
+  updateGraphInfoView() {
+    this.graphOrder = this.vertexs.length;
+    this.graphSize = this.edges.length;
   }
 
   clearGraphsBoard() {
@@ -73,9 +82,12 @@ export class GraphsBoardComponent implements OnInit {
     }
   }
 
-  moveDraggedVertex(e: MouseEvent) {
+  onMouseMoveOnBoard(e: MouseEvent) {
     if (this.mode === 1) {
       this.graphService.moveDraggedVertex(e);
+    } else if (this.mode === 2) {
+      // move graph
+      this.graphService.moveGraph(e);
     }
   }
 
@@ -83,10 +95,10 @@ export class GraphsBoardComponent implements OnInit {
     this.graphService.setDraggedVertexNull();
   }
 
-  putDraggableVertex(id: number) {
-    if (this.mode === 1) {
+  selectDraggableVertex(id: number) {
+    if (this.mode === 1 || this.mode === 2) {
       this.graphService.setDraggedVertex(id);
-    }
+    } 
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -95,6 +107,9 @@ export class GraphsBoardComponent implements OnInit {
       case 'q':
         this.mode = 1;
         break;
+      case 'w':
+        this.mode = 2;
+        break;
     }
   }
 
@@ -102,6 +117,9 @@ export class GraphsBoardComponent implements OnInit {
   onkeyup(e: KeyboardEvent) {
     switch (e.key) {
       case 'q':
+        this.mode = 0;
+        break;
+      case 'w':
         this.mode = 0;
         break;
     }
