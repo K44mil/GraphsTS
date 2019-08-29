@@ -78,20 +78,40 @@ export class GraphService {
     if (this.isSelectedElementVertex) {
       if (this._selectedElement === vertex) {
         this._selectedElement.setDisabled();
+        this.setAllConnectedEdgesUnhighlighted(this._selectedElement);
         this._selectedElement = null;
       } else {
         this.addNewEdge(this._selectedElement, vertex);
         this._selectedElement.setDisabled();
+        this.setAllConnectedEdgesUnhighlighted(this._selectedElement);
         this._selectedElement = null;
       }
     } else if (this.isSelectedElementEdge) {
       this._selectedElement.setDisabled();
       this._selectedElement = vertex;
       this._selectedElement.setActive();
+      this.setAllConnectedEdgesHighlighted(this._selectedElement);
     } else {
       this._selectedElement = vertex;
       this._selectedElement.setActive();
+      this.setAllConnectedEdgesHighlighted(this._selectedElement);
     }
+  }
+
+  setAllConnectedEdgesHighlighted(vertex: Vertex) {
+    this._edges.forEach(e => {
+      if (e.v1 === vertex.id || e.v2 === vertex.id) {
+        e.setHighlighted();
+      }
+    });
+  }
+
+  setAllConnectedEdgesUnhighlighted(vertex: Vertex) {
+    this._edges.forEach(e => {
+      if (e.v1 === vertex.id || e.v2 === vertex.id) {
+        e.setUnhighlighted();
+      }
+    });
   }
 
   onClickEdge(id: number) {
@@ -106,6 +126,7 @@ export class GraphService {
           this._selectedElement = null;
         } else {
           this._selectedElement.setDisabled();
+          this.setAllConnectedEdgesUnhighlighted(this._selectedElement);
           this._selectedElement = edge;
           this._selectedElement.setActive();
         }

@@ -48,6 +48,16 @@ export class Edge {
         this._stroke = 'black';
         this._strokeWidth = 3;
     }
+
+    setHighlighted() {
+        this._stroke = "red";
+        this._strokeWidth = 4;
+    }
+
+    setUnhighlighted() {
+        this._stroke = 'black';
+        this._strokeWidth = 3;
+    }
     
     // Getters and Setters
     get id(): number {
