@@ -14,12 +14,14 @@ export class GraphsBoardComponent implements OnInit {
   edges: Edge[] = [];
   graphOrder: number = 0;
   graphSize: number = 0;
+  graphDegree: number = 0;
   
   /**
    * MODES:
    * 0 - draw graph
    * 1 - stretch graph
    * 2 - move graph
+   * 3 - calculate any path
    */
   mode: number;
 
@@ -47,6 +49,7 @@ export class GraphsBoardComponent implements OnInit {
   updateGraphInfoView() {
     this.graphOrder = this.vertexs.length;
     this.graphSize = this.edges.length;
+    this.graphDegree = this.graphService.calcGraphDegree();
   }
 
   clearGraphsBoard() {
@@ -70,8 +73,10 @@ export class GraphsBoardComponent implements OnInit {
 
   onClickVertex(id: number) {
     if (this.mode === 0) {
-      this.graphService.onClickVertex(id);
+      this.graphService.onClickVertexMode_1(id);
       this.updateGraphView();
+    } else if (this.mode === 3) {
+      this.graphService.onClickVertexMode_3(id);
     }
   }
 
@@ -134,6 +139,9 @@ export class GraphsBoardComponent implements OnInit {
       case 'w':
         this.mode = 2;
         break;
+      case 'a':
+        this.mode = 3;
+        break;
     }
   }
 
@@ -144,6 +152,9 @@ export class GraphsBoardComponent implements OnInit {
         this.mode = 0;
         break;
       case 'w':
+        this.mode = 0;
+        break;
+      case 'a':
         this.mode = 0;
         break;
       case 'p':

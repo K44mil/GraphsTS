@@ -46,6 +46,18 @@ export class Vertex {
         this._strokeWidth = 0;
     }
 
+    setPathBeginHighlight() {
+        this._fill = 'yellow';
+        this._stroke = 'green';
+        this._strokeWidth = 3;
+    }
+
+    setPathEndHighlight() {
+        this._fill = 'brown';
+        this._stroke = 'red';
+        this._strokeWidth = 3;
+    }
+
     // Getters and Setters
     get id(): number {
         return this._id;

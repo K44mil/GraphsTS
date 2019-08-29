@@ -19,6 +19,10 @@ export class GraphService {
   private _lineGraphVertexs: Vertex[];
   private _lineGraphEdges: Edge[];
 
+  private _pathBeginVertex: Vertex;
+  private _pathEndVertex: Vertex;
+  
+
   constructor(
     private svgGraphicsService: SvgGraphicsService
   ) { }
@@ -31,6 +35,8 @@ export class GraphService {
     this._edges = [];
     this._adjacencyMatrix = [];
     this._incidenceMatrix = [];
+    this._pathBeginVertex = null;
+    this._pathEndVertex = null;
   }
 
   removeCurrentGraph() {
@@ -39,6 +45,8 @@ export class GraphService {
     this._edges = [];
     this._adjacencyMatrix = [];
     this._incidenceMatrix = [];
+    this._pathBeginVertex = null;
+    this._pathEndVertex = null;
   }
 
   removeSelectedElements() {
@@ -73,7 +81,8 @@ export class GraphService {
     }
   }
 
-  onClickVertex(id: number) {
+  onClickVertexMode_1(id: number) {
+    this.setNullPathVertexs();
     const vertex = this.getVertexById(id);
     if (this.isSelectedElementVertex) {
       if (this._selectedElement === vertex) {
@@ -98,6 +107,51 @@ export class GraphService {
     }
   }
 
+  onClickVertexMode_3(id: number) {
+    if (this._selectedElement) {
+      this._selectedElement.setDisabled();
+      this._selectedElement = null;
+    }
+    if (!this._pathBeginVertex) {
+      this._pathBeginVertex = this.getVertexById(id);
+      this._pathBeginVertex.setPathBeginHighlight();
+    } else {
+      if (this._pathBeginVertex === this.getVertexById(id)) {
+        this._pathBeginVertex.setDisabled();
+        this._pathBeginVertex = null;
+        if (this._pathEndVertex) {
+          this._pathEndVertex.setDisabled();
+          this._pathEndVertex = null;
+        }
+      } else {
+        if (!this._pathEndVertex) {
+          this._pathEndVertex = this.getVertexById(id);
+          this._pathEndVertex.setPathEndHighlight();
+        } else {
+          if (this._pathEndVertex === this.getVertexById(id)) {
+            this._pathEndVertex.setDisabled();
+            this._pathEndVertex = null;
+          } else {
+            this._pathEndVertex.setDisabled();
+            this._pathEndVertex = this.getVertexById(id);
+            this._pathEndVertex.setPathEndHighlight();
+          }  
+        }
+      }
+    }
+  }
+
+  setNullPathVertexs() {
+    if (this._pathBeginVertex) {
+      this._pathBeginVertex.setDisabled();
+      this._pathBeginVertex = null;
+    }
+    if (this._pathEndVertex) {
+      this._pathEndVertex.setDisabled();
+      this._pathEndVertex = null;
+    }
+  }
+
   setAllConnectedEdgesHighlighted(vertex: Vertex) {
     this._edges.forEach(e => {
       if (e.v1 === vertex.id || e.v2 === vertex.id) {
@@ -115,6 +169,7 @@ export class GraphService {
   }
 
   onClickEdge(id: number) {
+    this.setNullPathVertexs();
     const edge = this.getEdgeById(id);
     if (!this._selectedElement) {
       this._selectedElement = edge;
@@ -359,7 +414,6 @@ export class GraphService {
               // console.log('%c(' + index_vu + ' - ' + index_uw + ')', 'color: red');
               let v1 = this._lineGraphVertexs[index_vu];
               let v2 = this._lineGraphVertexs[index_uw];
-              // console.log('!!!');
               // console.log('%c(' + v1.id + ' - ' + v2.id + ')', 'color: yellow');
               if (!(this.lineGraphEdgeExists(v1.id, v2.id) || this.lineGraphEdgeExists(v2.id, v1.id)))
                 this._lineGraphEdges.push(new Edge(edgeId++, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy));         
@@ -384,6 +438,47 @@ export class GraphService {
     });
     return result;
   }
+
+  calcGraphDegree(): number {
+    this.updateAdjacencyMatrix();
+    if (this._vertexs.length > 0) {
+      let vertexsDegrees: number[] = new Array(this._vertexs.length);
+      vertexsDegrees.fill(0, 0, this._vertexs.length);
+      for (let i = 0; i < this._vertexs.length; i++) {
+        for (let j = 0; j < this._vertexs.length; j++) {
+          if (i === j)
+            continue;
+          if (this._adjacencyMatrix[i][j] === 1)
+            vertexsDegrees[i]++;
+        } 
+      }
+      return Math.max(...vertexsDegrees);
+    } else {
+      return 0;
+    }
+  }
+
+  // @@@ Calculate any path
+
+  private $_visited: boolean[];
+  private $_pathStack: number[];
+
+  calcAnyPath() {
+    this.$_visited = new Array(this._vertexs.length);
+    this.$_visited.fill(false, 0, this.$_visited.length);
+    this.$_pathStack = [];
+    if (this.DFS(this._pathBeginVertex.id) === false)
+      return [];
+    else
+      return this.$_pathStack;
+  }
+
+  private DFS(id: number): boolean {
+    //TODO: recursive function DFC checking visited vertexs and finding path
+    return true;
+  }
+
+  // @@@
 
   // Getters
   get graph(): Graph {
