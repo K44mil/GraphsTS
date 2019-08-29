@@ -13,6 +13,12 @@ export class GraphService {
   private _selectedElement: any;
   private _selectedDraggedVertex: Vertex;
 
+  private _adjacencyMatrix: number[][];
+  private _incidenceMatrix: number[][];
+
+  private _lineGraphVertexs: Vertex[];
+  private _lineGraphEdges: Edge[];
+
   constructor(
     private svgGraphicsService: SvgGraphicsService
   ) { }
@@ -23,19 +29,23 @@ export class GraphService {
     this._graph = new Graph(newGraphId);
     this._vertexs = [];
     this._edges = [];
+    this._adjacencyMatrix = [];
+    this._incidenceMatrix = [];
   }
 
   removeCurrentGraph() {
     this._graph = undefined;
     this._vertexs = [];
     this._edges = [];
+    this._adjacencyMatrix = [];
+    this._incidenceMatrix = [];
   }
 
   removeSelectedElements() {
     if (this._selectedElement) {
       if (this.isSelectedElementVertex) {
-        this.deleteVertex(this._selectedElement.id);
-        this.deleteEdgesConnectedToVertex(this._selectedElement.id);
+        this.deleteEdgesConnectedToVertex(this._selectedElement.id);         
+        this.deleteVertex(this._selectedElement.id);            
         this._selectedElement.setDisabled();
         this._selectedElement = null;
       } else if (this.isSelectedElementEdge) {
@@ -49,7 +59,7 @@ export class GraphService {
   addNewVertex(e: MouseEvent) {
     if (e.target instanceof SVGSVGElement) {
       const { x, y } = this.svgGraphicsService.parsePoint(e);
-      const newVertexId = this._vertexs.length ? Math.max(...this._vertexs.map(x => x.id)) + 1 : 1;
+      const newVertexId = this._vertexs.length ?  this._vertexs.length : 0;
       const vertex = new Vertex(newVertexId, x, y, 15);
       this.addVertex(vertex);
     }
@@ -57,7 +67,7 @@ export class GraphService {
 
   addNewEdge(v1: Vertex, v2: Vertex) {
     if (!this.edgeExists(v1.id, v2.id)) {
-      const newEdgeId = this._edges.length ? Math.max(...this._edges.map(x => x.id)) + 1 : 1;
+      const newEdgeId = this._edges.length ? this._edges.length : 0;
       const edge = new Edge(newEdgeId, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy);
       this.addEdge(edge);
     }
@@ -109,10 +119,12 @@ export class GraphService {
 
   deleteVertex(id: number) {
     this._vertexs = this._vertexs.filter(v => v.id !== id);
+    this.updateVertexsIds();
   }
 
   deleteEdge(id: number) {
     this._edges = this._edges.filter(e => e.id !== id);
+    this.updateEdgesIds();
   }
 
   deleteEdgesConnectedToVertex(id: number) {
@@ -145,6 +157,16 @@ export class GraphService {
   edgeExists(v1: number, v2: number): boolean {
     let result: boolean = false;
     this._edges.forEach(e => {
+      if ((e.v1 === v1 && e.v2 === v2) || (e.v1 === v2 && e.v2 === v1)) {
+        result = true;
+      }
+    });
+    return result;
+  }
+
+  lineGraphEdgeExists(v1: number, v2: number): boolean {
+    let result: boolean = false;
+    this._lineGraphEdges.forEach(e => {
       if ((e.v1 === v1 && e.v2 === v2) || (e.v1 === v2 && e.v2 === v1)) {
         result = true;
       }
@@ -220,6 +242,129 @@ export class GraphService {
     });
   }
 
+  updateVertexsIds() {
+    let id = 0;
+    this._vertexs.forEach(v => {
+      this.updateEdgesVertexId(v.id, id);
+      v.id = id++;
+    });
+  }
+
+  updateEdgesIds() {
+    let id = 0;
+    this._edges.forEach(e => {
+      e.id = id++;
+    });
+  }
+
+  updateEdgesVertexId(oldId: number, newId: number) {
+    this._edges.forEach(e => {
+      if (e.v1 === oldId) {
+        e.v1 = newId;
+      } else if (e.v2 === oldId) {
+        e.v2 = newId;
+      }
+    });
+  }
+
+  createAdjacencyMatrix(vertexs: Vertex[], edges: Edge[]) {
+    let aMatrix: number[][] = [];
+    for (let i = 0; i < vertexs.length; i++) {
+      aMatrix[i] = [];
+      for (let j = 0; j < vertexs.length; j++) {
+        aMatrix[i][j] = 0;
+      }
+    }
+    for (let i = 0; i < vertexs.length; i++) {
+      for (let j = 0; j < vertexs.length; j++) {
+        edges.forEach(e => {
+          if ((e.v1 === i && e.v2 === j) || (e.v1 === j && e.v2 === i)) {
+            aMatrix[i][j] = 1;
+          }
+        });
+      }
+    }
+    return aMatrix;
+  }
+
+  updateAdjacencyMatrix() {
+    this._adjacencyMatrix = this.createAdjacencyMatrix(this._vertexs, this._edges);
+  }
+
+  createIncidenceMatrix(vertexs: Vertex[], edges: Edge[]) {
+    let iMatrix: number[][] = [];
+    for (let i = 0; i < vertexs.length; i++) {
+      iMatrix[i] = [];
+      for (let j = 0; j < edges.length; j++) {
+        iMatrix[i][j] = 0;
+      }
+    }
+    for (let i = 0; i < vertexs.length; i++) {
+      for (let j = 0; j < edges.length; j++) {
+        if (edges[j].v1 === i || edges[j].v2 === i) {
+          iMatrix[i][j] = 1;
+        }
+      }
+    }
+    return iMatrix;
+  }
+
+  updateIncidenceMatrix() {
+    this._incidenceMatrix = this.createIncidenceMatrix(this._vertexs, this._edges);
+  }
+
+  createLineGraph() {
+    this._lineGraphVertexs = [];
+    this._lineGraphEdges = [];
+    this.updateAdjacencyMatrix();
+
+    for (let i = 0; i < this._edges.length; i++) {
+      const e = this._edges[i]; 
+      this._lineGraphVertexs.push(new Vertex(i, (e.x1 + e.x2) / 2, (e.y1 + e.y2) / 2, 15));
+    }
+
+    let edgeId = 0;
+    for (let v = 0; v < this._vertexs.length; v++) {
+      for (let u = 0; u < this._vertexs.length; u++) {
+        if (this._adjacencyMatrix[v][u] === 1) {
+          const index_vu = this.getEdgeIdByVertexsIds(v, u);
+          // console.log('%c' + v + ' - ' + u, 'color: blue'); 
+          for (let w = 0; w < this._vertexs.length; w++) {
+            if (this._adjacencyMatrix[u][w] === 1) {
+              if (w === v)
+                continue;
+              // console.log('%c' + u + ' - ' + w, 'color: green');
+              const index_uw = this.getEdgeIdByVertexsIds(u, w);
+              // console.log('%c(' + index_vu + ' - ' + index_uw + ')', 'color: red');
+              let v1 = this._lineGraphVertexs[index_vu];
+              let v2 = this._lineGraphVertexs[index_uw];
+              // console.log('!!!');
+              // console.log('%c(' + v1.id + ' - ' + v2.id + ')', 'color: yellow');
+              if (!(this.lineGraphEdgeExists(v1.id, v2.id) || this.lineGraphEdgeExists(v2.id, v1.id)))
+                this._lineGraphEdges.push(new Edge(edgeId++, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy));         
+            }
+          }
+        }
+      }
+    }
+  }
+
+  setLineGraphActive() {
+    this._vertexs = this._lineGraphVertexs;
+    this._edges = this._lineGraphEdges;
+  }
+
+  getEdgeIdByVertexsIds(v1_id: number, v2_id: number): number {
+    let result: number = null;
+    this._edges.forEach(e => {
+      if ((e.v1 === v1_id && e.v2 === v2_id || e.v1 === v2_id && e.v2 === v1_id)) {
+        result = e.id;
+      }
+    });
+    return result;
+  }
+
+  // Getters
   get graph(): Graph {
     return this._graph;
   }
@@ -230,6 +375,14 @@ export class GraphService {
 
   get edges(): Edge[] {
     return this._edges;
+  }
+
+  get adjacencyMatrix() {
+    return this._adjacencyMatrix;
+  }
+
+  get incidenceMatrix() {
+    return this._incidenceMatrix;
   }
 
   get isSelectedElementVertex(): boolean {

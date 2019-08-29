@@ -101,6 +101,30 @@ export class GraphsBoardComponent implements OnInit {
     } 
   }
 
+  showLineGraph() {
+    this.graphService.createLineGraph();
+    this.graphService.setLineGraphActive();
+    this.updateGraphView();
+  }
+
+  logGraph() {
+    // console.clear();
+    console.log('%cVERTEXS: ', 'font-weight: 700; color: blue')
+    console.table(this.vertexs);
+    console.log('%cEDGES: ', 'font-weight: 700; color: green')
+    console.table(this.edges);
+  }
+
+  logAdjacencyMatrix() {
+    this.graphService.updateAdjacencyMatrix();
+    this.graphService.updateIncidenceMatrix();
+    // console.clear();
+    console.log('%cAdjacency matrix: ', 'font-weight: 700; color: blue');
+    console.log(this.graphService.adjacencyMatrix);
+    console.log('%cIncidence matrix: ', 'font-weight: 700; color: green');
+    console.log(this.graphService.incidenceMatrix);
+  }
+
   @HostListener('document:keydown', ['$event'])
   onKeyDown(e: KeyboardEvent) {
     switch (e.key) {
@@ -121,6 +145,24 @@ export class GraphsBoardComponent implements OnInit {
         break;
       case 'w':
         this.mode = 0;
+        break;
+      case 'p':
+        this.logGraph();
+        break;
+      case 'd':
+        this.removeFromGraphsBoard();
+        break;
+      case 'm':
+        this.logAdjacencyMatrix();
+        break;
+      case 'l':
+        this.showLineGraph();
+        break;
+      case 'r':
+        this.clearGraphsBoard();
+        break;
+      case 'c':
+        console.clear();
         break;
     }
   }

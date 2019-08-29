@@ -18,6 +18,9 @@
             [attr.stroke]="edge.stroke"
             [attr.stroke-width]="edge.strokeWidth"
             (click)="onClickEdge(edge.id)">
+                <title>
+                    {{ edge.id }}
+                </title>
             </line>
 
             <circle *ngFor="let vertex of vertexs"
@@ -29,11 +32,14 @@
             [attr.stroke-width]="vertex.strokeWidth"
             (click)="onClickVertex(vertex.id)"
             (mousedown)="selectDraggableVertex(vertex.id)">
+                <title>
+                    {{ vertex.id }}
+                </title>
             </circle>
 
             </svg>
         </div>
-        <div class="col-12 col-md-1">
+        <!-- <div class="col-12 col-md-1">
 
         </div>
         <div class="col-12 col-md-3">
@@ -46,7 +52,7 @@
                     <p>Graph size: {{ graphSize }}</p>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
     <div class="row" style="margin-top: 10px">
             <button class="btn btn-warning" (click)="clearGraphsBoard()">RESET</button>
