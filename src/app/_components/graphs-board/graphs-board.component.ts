@@ -175,6 +175,12 @@ export class GraphsBoardComponent implements OnInit {
       case 'c':
         console.clear();
         break;
+      case 'k':
+        console.log('Connected graph: ' + this.graphService.isGraphConnected());
+        break;
+      case 'n':
+        this.graphService.colorConnectedComponents(this.graphService.calcConnectedComponents());
+        break;
     }
   }
 

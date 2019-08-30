@@ -46,7 +46,7 @@ export class Vertex {
         this._strokeWidth = 0;
     }
 
-    setPathBeginHighlight() {
+    setPathStartHighlight() {
         this._fill = 'yellow';
         this._stroke = 'green';
         this._strokeWidth = 3;

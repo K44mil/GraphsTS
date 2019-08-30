@@ -19,7 +19,7 @@ export class GraphService {
   private _lineGraphVertexs: Vertex[];
   private _lineGraphEdges: Edge[];
 
-  private _pathBeginVertex: Vertex;
+  private _pathStartVertex: Vertex;
   private _pathEndVertex: Vertex;
   
 
@@ -35,7 +35,7 @@ export class GraphService {
     this._edges = [];
     this._adjacencyMatrix = [];
     this._incidenceMatrix = [];
-    this._pathBeginVertex = null;
+    this._pathStartVertex = null;
     this._pathEndVertex = null;
   }
 
@@ -45,7 +45,7 @@ export class GraphService {
     this._edges = [];
     this._adjacencyMatrix = [];
     this._incidenceMatrix = [];
-    this._pathBeginVertex = null;
+    this._pathStartVertex = null;
     this._pathEndVertex = null;
   }
 
@@ -115,14 +115,14 @@ export class GraphService {
       this._selectedElement.setDisabled();
       this._selectedElement = null;
     }
-    if (!this._pathBeginVertex) {
-      this._pathBeginVertex = this.getVertexById(id);
-      this._pathBeginVertex.setPathBeginHighlight();
+    if (!this._pathStartVertex) {
+      this._pathStartVertex = this.getVertexById(id);
+      this._pathStartVertex.setPathStartHighlight();
     } else {
-      if (this._pathBeginVertex === this.getVertexById(id)) {
+      if (this._pathStartVertex === this.getVertexById(id)) {
         this.setAllEdgesUnhighlighted();
-        this._pathBeginVertex.setDisabled();
-        this._pathBeginVertex = null;
+        this._pathStartVertex.setDisabled();
+        this._pathStartVertex = null;
         if (this._pathEndVertex) {
           this._pathEndVertex.setDisabled();
           this._pathEndVertex = null;
@@ -153,9 +153,9 @@ export class GraphService {
   }
 
   setNullPathVertexs() {
-    if (this._pathBeginVertex) {
-      this._pathBeginVertex.setDisabled();
-      this._pathBeginVertex = null;
+    if (this._pathStartVertex) {
+      this._pathStartVertex.setDisabled();
+      this._pathStartVertex = null;
     }
     if (this._pathEndVertex) {
       this._pathEndVertex.setDisabled();
@@ -180,6 +180,7 @@ export class GraphService {
   }
 
   onClickEdge(id: number) {
+    this.setAllEdgesUnhighlighted();
     this.setNullPathVertexs();
     const edge = this.getEdgeById(id);
     if (!this._selectedElement) {
@@ -436,6 +437,7 @@ export class GraphService {
   }
 
   setLineGraphActive() {
+    this.initNewGraph();
     this._vertexs = this._lineGraphVertexs;
     this._edges = this._lineGraphEdges;
   }
@@ -448,6 +450,15 @@ export class GraphService {
       }
     });
     return result;
+  }
+
+  getAllConnectedEdgesByVertexId(v_id: number): Edge[] {
+    let connectedEdges: Edge[] = [];
+    this._edges.forEach(e => {
+      if (e.v1 === v_id || e.v2 === v_id)
+        connectedEdges.push(e);
+    });
+    return connectedEdges;
   }
 
   calcGraphDegree(): number {
@@ -471,21 +482,21 @@ export class GraphService {
 
   // @@@ Calculate any path
   private $_visited: boolean[];
-  private $_pathStack: number[];
+  private $_vertexsStack: number[];
 
   calcAnyPath() {
     this.$_visited = new Array(this._vertexs.length);
     this.$_visited.fill(false, 0, this.$_visited.length);
-    this.$_pathStack = [];
-    if (this.DFS(this._pathBeginVertex.id) === false)
+    this.$_vertexsStack = [];
+    if (this.DFS(this._pathStartVertex.id) === false)
       return [];
     else
-      return this.$_pathStack;
+      return this.$_vertexsStack;
   }
 
   private DFS(id: number): boolean {
     this.$_visited[id] = true;
-    this.$_pathStack.push(id);
+    this.$_vertexsStack.push(id);
     if (id === this._pathEndVertex.id) {
       return true;
     }
@@ -499,7 +510,7 @@ export class GraphService {
           return true;
       }
     }
-    this.$_pathStack.pop();
+    this.$_vertexsStack.pop();
     return false;
   }
   // @@@
@@ -517,6 +528,100 @@ export class GraphService {
     });
   }
 
+  // Check if graf is connected or not
+  isGraphConnected(): boolean {
+    this.updateAdjacencyMatrix();
+    let visited: boolean[] = new Array(this._vertexs.length);
+    let vertexsStack: number[] = [];
+    let countVisited = 0;
+    visited.fill(false, 0, visited.length);
+    vertexsStack.push(0);
+    visited[0] = true;
+    while (vertexsStack.length > 0) {
+      let v = vertexsStack[vertexsStack.length-1];
+      vertexsStack.pop();
+      countVisited++;
+      for (let u = 0; u < this._vertexs.length; u++) {
+        if (u === v)
+          continue;
+        if (this._adjacencyMatrix[v][u] === 1) {
+          if (visited[u] === true)
+            continue;
+            visited[u] = true;
+            vertexsStack.push(u);
+        }
+      }
+    }
+    if (countVisited === this._vertexs.length)
+      return true;
+    return false;
+  }
+
+  calcConnectedComponents(): number[] {
+    this.updateAdjacencyMatrix();
+    let C: number[] = new Array(this._vertexs.length);
+    let vertexsStack: number[] = [];
+    let cComponentsCounter = 0;
+    C.fill(0, 0, C.length);
+    for (let i = 0; i < this._vertexs.length; i++) {
+      if (C[i] > 0)
+        continue;
+      cComponentsCounter++;
+      vertexsStack.push(i);
+      C[i] = cComponentsCounter;
+      while (vertexsStack.length > 0) {
+        let v = vertexsStack[vertexsStack.length - 1];
+        vertexsStack.pop()
+        for (let u = 0; u < this._vertexs.length; u++) {
+            if (u === v)
+              continue;
+            if (this._adjacencyMatrix[v][u] === 1) {
+              if (C[u] > 0)
+                continue;
+              vertexsStack.push(u);
+              C[u] = cComponentsCounter;
+            }
+        }
+      }
+    }
+    return C;
+  }
+
+  colorConnectedComponents(C: number[]) {
+    this.clearAllColors();
+    const onlyUnique = (value, index, self) => {
+      return self.indexOf(value) === index;
+    };
+    const cUniqueValues: number[] = C.filter(onlyUnique);
+    cUniqueValues.forEach((uv) => {
+      const colorR = Math.floor(Math.random() * (255 + 1));
+      const colorG = Math.floor(Math.random() * (255 + 1));
+      const colorB = Math.floor(Math.random() * (255 + 1));
+      const randomColor = 'rgb(' + colorR.toString() + ', ' + colorG.toString() + ', ' + colorB.toString() + ')';
+      this._vertexs.forEach(v => {
+        if (C[v.id] === uv) {
+          this._vertexs[v.id].fill = randomColor;
+          const connectedEdges: Edge[] = this.getAllConnectedEdgesByVertexId(v.id);
+          if (connectedEdges.length > 0) {
+            connectedEdges.forEach(e => {
+              e.stroke = randomColor;
+            });
+          }
+        }
+      });
+    });
+  }
+
+  clearAllColors() {
+    this._vertexs.forEach(v => {
+      v.setDisabled();
+    });
+    this._edges.forEach(e => {
+      e.setDisabled();
+    });
+  }
+
+  
   // Getters
   get graph(): Graph {
     return this._graph;
