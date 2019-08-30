@@ -22,6 +22,7 @@ export class GraphsBoardComponent implements OnInit {
    * 1 - stretch graph
    * 2 - move graph
    * 3 - calculate any path
+   * 4 - move only single component
    */
   mode: number;
 
@@ -72,11 +73,14 @@ export class GraphsBoardComponent implements OnInit {
   }
 
   onClickVertex(id: number) {
-    if (this.mode === 0) {
-      this.graphService.onClickVertexMode_1(id);
-      this.updateGraphView();
-    } else if (this.mode === 3) {
-      this.graphService.onClickVertexMode_3(id);
+    switch (this.mode) {
+      case 0:
+        this.graphService.onClickVertexMode_1(id);
+        this.updateGraphView();
+        break;
+      case 3:
+        this.graphService.onClickVertexMode_3(id);
+        break;
     }
   }
 
@@ -93,6 +97,8 @@ export class GraphsBoardComponent implements OnInit {
     } else if (this.mode === 2) {
       // move graph
       this.graphService.moveGraph(e);
+    } else if (this.mode === 4) {
+      this.graphService.moveConnectedComponent(e);
     }
   }
 
@@ -101,7 +107,7 @@ export class GraphsBoardComponent implements OnInit {
   }
 
   selectDraggableVertex(id: number) {
-    if (this.mode === 1 || this.mode === 2) {
+    if (this.mode === 1 || this.mode === 2 || this.mode === 4) {
       this.graphService.setDraggedVertex(id);
     } 
   }
@@ -142,6 +148,9 @@ export class GraphsBoardComponent implements OnInit {
       case 'a':
         this.mode = 3;
         break;
+      case 'e':
+        this.mode = 4;
+        break;
     }
   }
 
@@ -155,6 +164,9 @@ export class GraphsBoardComponent implements OnInit {
         this.mode = 0;
         break;
       case 'a':
+        this.mode = 0;
+        break;
+      case 'e':
         this.mode = 0;
         break;
       case 'p':

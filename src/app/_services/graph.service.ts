@@ -101,7 +101,7 @@ export class GraphService {
       this._selectedElement.setActive();
       this.setAllConnectedEdgesHighlighted(this._selectedElement);
     } else {
-      this.setAllEdgesUnhighlighted();
+      this.clearAllColors();
       this._selectedElement = vertex;
       this._selectedElement.setActive();
       this.setAllConnectedEdgesHighlighted(this._selectedElement);
@@ -312,6 +312,29 @@ export class GraphService {
         if (v !== this._selectedDraggedVertex) {
           v.cx += dx;
           v.cy += dy;
+        }
+        this.updateEdgesCoords(v);
+      });
+    }
+  }
+
+  moveConnectedComponent(e) {
+    const cComponentsArray: number[] = this.calcConnectedComponents();
+    if (this._selectedDraggedVertex) {
+      const dVertexComponentNumber = cComponentsArray[this._selectedDraggedVertex.id];
+      const { x, y } = this.svgGraphicsService.parsePoint(e);
+      const dx = x - this._selectedDraggedVertex.cx;
+      const dy = y - this._selectedDraggedVertex.cy;
+
+      this._selectedDraggedVertex.cx = x;
+      this._selectedDraggedVertex.cy = y;
+
+      this._vertexs.forEach(v => {
+        if (v != this._selectedDraggedVertex) {
+          if (cComponentsArray[v.id] === dVertexComponentNumber) {
+            v.cx += dx;
+            v.cy += dy;
+          }
         }
         this.updateEdgesCoords(v);
       });
