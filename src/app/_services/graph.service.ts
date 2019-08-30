@@ -15,14 +15,16 @@ export class GraphService {
 
   private _adjacencyMatrix: number[][];
   private _incidenceMatrix: number[][];
+  private _adjacencyLists: number[][];
 
   private _lineGraphVertexs: Vertex[];
   private _lineGraphEdges: Edge[];
 
   private _pathStartVertex: Vertex;
   private _pathEndVertex: Vertex;
-  
 
+  private _bfsTreeRoot: Vertex;
+  
   constructor(
     private svgGraphicsService: SvgGraphicsService
   ) { }
@@ -35,8 +37,10 @@ export class GraphService {
     this._edges = [];
     this._adjacencyMatrix = [];
     this._incidenceMatrix = [];
+    this._adjacencyLists = [];
     this._pathStartVertex = null;
     this._pathEndVertex = null;
+    this._bfsTreeRoot = null;
   }
 
   removeCurrentGraph() {
@@ -45,8 +49,10 @@ export class GraphService {
     this._edges = [];
     this._adjacencyMatrix = [];
     this._incidenceMatrix = [];
+    this._adjacencyLists = [];
     this._pathStartVertex = null;
     this._pathEndVertex = null;
+    this._bfsTreeRoot = null;
   }
 
   removeSelectedElements() {
@@ -116,6 +122,7 @@ export class GraphService {
       this._selectedElement = null;
     }
     if (!this._pathStartVertex) {
+      this.clearAllColors();
       this._pathStartVertex = this.getVertexById(id);
       this._pathStartVertex.setPathStartHighlight();
     } else {
@@ -152,6 +159,25 @@ export class GraphService {
     }
   }
 
+  onClickVertexMode_5(id) {
+    this.clearAllColors();
+    if (!this._bfsTreeRoot) {
+      this._bfsTreeRoot = this.getVertexById(id);
+      // calculate and color tree
+      // console.log(this.calcBreadthFirstSpanningTree());
+      this.colorBredthFirstSpanningTree(this.calcBreadthFirstSpanningTree());
+    } else {
+      if (this._bfsTreeRoot === this.getVertexById(id)) {
+        this._bfsTreeRoot = null;
+      } else {
+        this._bfsTreeRoot = this.getVertexById(id);
+        // calculate and color tree
+        // console.log(this.calcBreadthFirstSpanningTree());
+        this.colorBredthFirstSpanningTree(this.calcBreadthFirstSpanningTree());
+      }
+    }
+  }
+
   setNullPathVertexs() {
     if (this._pathStartVertex) {
       this._pathStartVertex.setDisabled();
@@ -180,7 +206,7 @@ export class GraphService {
   }
 
   onClickEdge(id: number) {
-    this.setAllEdgesUnhighlighted();
+    this.clearAllColors();
     this.setNullPathVertexs();
     const edge = this.getEdgeById(id);
     if (!this._selectedElement) {
@@ -424,6 +450,24 @@ export class GraphService {
     this._incidenceMatrix = this.createIncidenceMatrix(this._vertexs, this._edges);
   }
 
+  createAdjacencyLists(vertexs: Vertex[], edges: Edge[]) {
+    let aLists: number[][] = [];
+    for (let i = 0; i < vertexs.length; i++) {
+      aLists[i] = [];
+      for (let j = 0; j < edges.length; j++) {
+        if (edges[j].v1 === i)
+          aLists[i].push(edges[j].v2);
+        else if (edges[j].v2 === i)
+          aLists[i].push(edges[j].v1);
+      }
+    }
+    return aLists;
+  }
+
+  updateAdjacencyLists() {
+    this._adjacencyLists = this.createAdjacencyLists(this._vertexs, this._edges);
+  }
+
   createLineGraph() {
     this._lineGraphVertexs = [];
     this._lineGraphEdges = [];
@@ -610,6 +654,14 @@ export class GraphService {
     return C;
   }
 
+  private getRandomColor(): string {
+    const colorR = Math.floor(Math.random() * (255 + 1));
+    const colorG = Math.floor(Math.random() * (255 + 1));
+    const colorB = Math.floor(Math.random() * (255 + 1));
+    const randomColor = 'rgb(' + colorR.toString() + ', ' + colorG.toString() + ', ' + colorB.toString() + ')';
+    return randomColor;
+  }
+
   colorConnectedComponents(C: number[]) {
     this.clearAllColors();
     const onlyUnique = (value, index, self) => {
@@ -617,10 +669,7 @@ export class GraphService {
     };
     const cUniqueValues: number[] = C.filter(onlyUnique);
     cUniqueValues.forEach((uv) => {
-      const colorR = Math.floor(Math.random() * (255 + 1));
-      const colorG = Math.floor(Math.random() * (255 + 1));
-      const colorB = Math.floor(Math.random() * (255 + 1));
-      const randomColor = 'rgb(' + colorR.toString() + ', ' + colorG.toString() + ', ' + colorB.toString() + ')';
+      const randomColor = this.getRandomColor();
       this._vertexs.forEach(v => {
         if (C[v.id] === uv) {
           this._vertexs[v.id].fill = randomColor;
@@ -644,6 +693,49 @@ export class GraphService {
     });
   }
 
+  calcBreadthFirstSpanningTree(): number[][] {
+    this.updateAdjacencyMatrix();
+    let visited: boolean[] = new Array(this._vertexs.length);
+    let T: number[][] = [];
+    let Q: number[] = [];
+    visited.fill(false, 0, visited.length);
+    for (let i = 0; i < this._vertexs.length; i++) {
+      T[i] = [];
+    }
+    Q.push(-1); Q.push(this._bfsTreeRoot.id);
+    visited[this._bfsTreeRoot.id] = true;
+    while (Q.length > 0) {
+      let v = Q[0]; Q.reverse(); Q.pop(); Q.reverse();
+      let w = Q[0]; Q.reverse(); Q.pop(); Q.reverse();
+      if (v > -1)
+        T[v].push(w);
+      for (let z = 0; z < this._vertexs.length; z++) {
+        if (z === w)
+          continue;
+        if (this._adjacencyMatrix[w][z] === 1) {
+          if (visited[z] === true)
+            continue;
+          visited[z] = true;
+          Q.push(w);
+          Q.push(z);
+        }
+      }
+    }
+    return T;
+  }
+
+  colorBredthFirstSpanningTree(T: number[][]) {
+    this.clearAllColors();
+    this._bfsTreeRoot.fill = this.getRandomColor();
+    const randomColor = this.getRandomColor();
+    for (let i = 0; i < this._vertexs.length; i++) {
+      for (let j = 0; j < T[i].length; j++) {
+        const edge = this._edges[this.getEdgeIdByVertexsIds(i, T[i][j])];
+        this.getVertexById(T[i][j]).fill = randomColor;
+        edge.stroke = randomColor;
+      }
+    }
+  }
   
   // Getters
   get graph(): Graph {
@@ -664,6 +756,10 @@ export class GraphService {
 
   get incidenceMatrix() {
     return this._incidenceMatrix;
+  }
+
+  get adjacencyLists() {
+    return this._adjacencyLists;
   }
 
   get isSelectedElementVertex(): boolean {

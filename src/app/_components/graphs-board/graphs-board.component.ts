@@ -23,6 +23,7 @@ export class GraphsBoardComponent implements OnInit {
    * 2 - move graph
    * 3 - calculate any path
    * 4 - move only single component
+   * 5 - spanning tree root select 
    */
   mode: number;
 
@@ -81,6 +82,9 @@ export class GraphsBoardComponent implements OnInit {
       case 3:
         this.graphService.onClickVertexMode_3(id);
         break;
+      case 5:
+        this.graphService.onClickVertexMode_5(id);
+        break;
     }
   }
 
@@ -126,14 +130,17 @@ export class GraphsBoardComponent implements OnInit {
     console.table(this.edges);
   }
 
-  logAdjacencyMatrix() {
+  logGraphMatrixs() {
     this.graphService.updateAdjacencyMatrix();
     this.graphService.updateIncidenceMatrix();
+    this.graphService.updateAdjacencyLists();
     // console.clear();
     console.log('%cAdjacency matrix: ', 'font-weight: 700; color: blue');
     console.log(this.graphService.adjacencyMatrix);
     console.log('%cIncidence matrix: ', 'font-weight: 700; color: green');
     console.log(this.graphService.incidenceMatrix);
+    console.log('%cAdjacency lists: ', 'font-weight: 700; color: red');
+    console.log(this.graphService.adjacencyLists);
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -150,6 +157,9 @@ export class GraphsBoardComponent implements OnInit {
         break;
       case 'e':
         this.mode = 4;
+        break;
+      case 't':
+        this.mode = 5;
         break;
     }
   }
@@ -169,6 +179,9 @@ export class GraphsBoardComponent implements OnInit {
       case 'e':
         this.mode = 0;
         break;
+      case 't':
+        this.mode = 0;
+        break;
       case 'p':
         this.logGraph();
         break;
@@ -176,7 +189,7 @@ export class GraphsBoardComponent implements OnInit {
         this.removeFromGraphsBoard();
         break;
       case 'm':
-        this.logAdjacencyMatrix();
+        this.logGraphMatrixs();
         break;
       case 'l':
         this.showLineGraph();
