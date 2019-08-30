@@ -101,6 +101,7 @@ export class GraphService {
       this._selectedElement.setActive();
       this.setAllConnectedEdgesHighlighted(this._selectedElement);
     } else {
+      this.setAllEdgesUnhighlighted();
       this._selectedElement = vertex;
       this._selectedElement.setActive();
       this.setAllConnectedEdgesHighlighted(this._selectedElement);
@@ -108,7 +109,9 @@ export class GraphService {
   }
 
   onClickVertexMode_3(id: number) {
-    if (this._selectedElement) {
+    if (this._selectedElement) {   
+      if (this.isSelectedElementVertex)
+        this.setAllConnectedEdgesUnhighlighted(this._selectedElement);
       this._selectedElement.setDisabled();
       this._selectedElement = null;
     }
@@ -117,6 +120,7 @@ export class GraphService {
       this._pathBeginVertex.setPathBeginHighlight();
     } else {
       if (this._pathBeginVertex === this.getVertexById(id)) {
+        this.setAllEdgesUnhighlighted();
         this._pathBeginVertex.setDisabled();
         this._pathBeginVertex = null;
         if (this._pathEndVertex) {
@@ -127,14 +131,21 @@ export class GraphService {
         if (!this._pathEndVertex) {
           this._pathEndVertex = this.getVertexById(id);
           this._pathEndVertex.setPathEndHighlight();
+          console.log(this.calcAnyPath());
+          this.setAllEdgesUnhighlighted();
+          this.setPathHighlighted(this.calcAnyPath());
         } else {
           if (this._pathEndVertex === this.getVertexById(id)) {
             this._pathEndVertex.setDisabled();
             this._pathEndVertex = null;
+            this.setAllEdgesUnhighlighted();
           } else {
             this._pathEndVertex.setDisabled();
             this._pathEndVertex = this.getVertexById(id);
             this._pathEndVertex.setPathEndHighlight();
+            console.log(this.calcAnyPath());
+            this.setAllEdgesUnhighlighted();
+            this.setPathHighlighted(this.calcAnyPath());
           }  
         }
       }
@@ -459,7 +470,6 @@ export class GraphService {
   }
 
   // @@@ Calculate any path
-
   private $_visited: boolean[];
   private $_pathStack: number[];
 
@@ -474,11 +484,38 @@ export class GraphService {
   }
 
   private DFS(id: number): boolean {
-    //TODO: recursive function DFC checking visited vertexs and finding path
-    return true;
+    this.$_visited[id] = true;
+    this.$_pathStack.push(id);
+    if (id === this._pathEndVertex.id) {
+      return true;
+    }
+    for (let i = 0; i < this._vertexs.length; i++) {
+      if (i === id)
+        continue;
+      if (this._adjacencyMatrix[id][i] === 1) {
+        if (this.$_visited[i] === true)
+          continue;
+        if (this.DFS(i) === true)
+          return true;
+      }
+    }
+    this.$_pathStack.pop();
+    return false;
+  }
+  // @@@
+
+  setPathHighlighted(path: number[]) {
+    for (let i = 0; i < path.length - 1; i++) {
+      const edgeId: number = this.getEdgeIdByVertexsIds(path[i], path[i+1]);
+      this._edges[edgeId].setHighlighted();
+    }
   }
 
-  // @@@
+  setAllEdgesUnhighlighted() {
+    this._edges.forEach(e => {
+      e.setDisabled();
+    });
+  }
 
   // Getters
   get graph(): Graph {
