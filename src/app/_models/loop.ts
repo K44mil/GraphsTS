@@ -1,30 +1,30 @@
-import { Line } from './_svgModels';
+import { Circle } from './_svgModels';
 
-export class Edge extends Line {
-
-    private _v1: number;
-    private _v2: number;
+export class Loop extends Circle {
+    
+    private _v: number;
+    private _factor: number;
     private _isActive: boolean;
 
     constructor(
         id: number,
-        v1: number,
-        v2: number,
-        x1: number,
-        y1: number,
-        x2: number,
-        y2: number,
+        v: number,
+        cx: number,
+        cy: number,
+        r: number,
+        fill: string = 'none',
         stroke: string = 'black',
         strokeWidth: number = 3,
+        factor: number = 1,
         isActive: boolean = false
     ) {
-        super(id, x1, y1, x2, y2, stroke, strokeWidth);
-        this._v1 = v1;
-        this._v2 = v2;
+        super(id, cx, cy, r, fill, stroke, strokeWidth);
+        this._v = v;
+        this._factor = factor;
         this._isActive = isActive;
     }
 
-    // Public methods
+    // Public Methods
     setActive() {
         this._isActive = true;
         this._stroke = 'green';
@@ -46,22 +46,22 @@ export class Edge extends Line {
         this._stroke = 'black';
         this._strokeWidth = 3;
     }
-    
+
     // Getters and Setters
-    get v1(): number {
-        return this._v1;
+    get v(): number {
+        return this._v;
     }
 
-    set v1(val: number) {
-        this._v1 = val;
+    set v(val: number) {
+        this._v = val;
     }
 
-    get v2(): number {
-        return this._v2;
+    get factor(): number {
+        return this._factor;
     }
 
-    set v2(val: number) {
-        this._v2 = val;
+    set factor(val: number) {
+        this._factor = val;
     }
 
     get isActive(): boolean {
@@ -71,5 +71,4 @@ export class Edge extends Line {
     set isActive(val: boolean) {
         this._isActive = val;
     }
-
 }
