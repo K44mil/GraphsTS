@@ -4,6 +4,8 @@ export class Edge extends Line {
 
     private _v1: number;
     private _v2: number;
+    private _weight: number;
+    private _factor: number;
     private _isActive: boolean;
 
     constructor(
@@ -14,13 +16,17 @@ export class Edge extends Line {
         y1: number,
         x2: number,
         y2: number,
+        weight: number = 0,
+        factor: number = 1,
+        isActive: boolean = false,
         stroke: string = 'black',
         strokeWidth: number = 3,
-        isActive: boolean = false
     ) {
         super(id, x1, y1, x2, y2, stroke, strokeWidth);
         this._v1 = v1;
         this._v2 = v2;
+        this._weight = weight;
+        this._factor = factor;
         this._isActive = isActive;
     }
 
@@ -62,6 +68,22 @@ export class Edge extends Line {
 
     set v2(val: number) {
         this._v2 = val;
+    }
+
+    get weight(): number {
+        return this._weight;
+    }
+
+    set weight(val: number) {
+        this._weight = val;
+    }
+
+    get factor(): number {
+        return this._factor;
+    }
+
+    set factor(val: number) {
+        this._factor = val;
     }
 
     get isActive(): boolean {

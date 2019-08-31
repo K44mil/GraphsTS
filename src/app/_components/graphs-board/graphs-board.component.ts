@@ -10,7 +10,7 @@ import { Graph, Vertex, Edge } from '../../_models';
 export class GraphsBoardComponent implements OnInit {
 
   graph: Graph;
-  vertexs: Vertex[] = [];
+  vertices: Vertex[] = [];
   edges: Edge[] = [];
   graphOrder: number = 0;
   graphSize: number = 0;
@@ -43,13 +43,13 @@ export class GraphsBoardComponent implements OnInit {
 
   updateGraphView() {
     this.graph = this.graphService.graph;
-    this.vertexs = this.graphService.vertexs;
+    this.vertices = this.graphService.vertices;
     this.edges = this.graphService.edges;
     this.updateGraphInfoView();
   }
 
   updateGraphInfoView() {
-    this.graphOrder = this.vertexs.length;
+    this.graphOrder = this.vertices.length;
     this.graphSize = this.edges.length;
     this.graphDegree = this.graphService.calcGraphDegree();
   }
@@ -124,8 +124,8 @@ export class GraphsBoardComponent implements OnInit {
 
   logGraph() {
     // console.clear();
-    console.log('%cVERTEXS: ', 'font-weight: 700; color: blue')
-    console.table(this.vertexs);
+    console.log('%cvertices: ', 'font-weight: 700; color: blue')
+    console.table(this.vertices);
     console.log('%cEDGES: ', 'font-weight: 700; color: green')
     console.table(this.edges);
   }

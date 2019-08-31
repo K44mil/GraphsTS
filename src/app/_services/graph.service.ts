@@ -8,7 +8,7 @@ import { SvgGraphicsService } from './svg-graphics.service';
 export class GraphService {
 
   private _graph: Graph;
-  private _vertexs: Vertex[];
+  private _vertices: Vertex[];
   private _edges: Edge[];
   private _selectedElement: any;
   private _selectedDraggedVertex: Vertex;
@@ -17,7 +17,7 @@ export class GraphService {
   private _incidenceMatrix: number[][];
   private _adjacencyLists: number[][];
 
-  private _lineGraphVertexs: Vertex[];
+  private _lineGraphvertices: Vertex[];
   private _lineGraphEdges: Edge[];
 
   private _pathStartVertex: Vertex;
@@ -33,7 +33,7 @@ export class GraphService {
     const savedGraphs = JSON.parse(localStorage.getItem('graphs')) || [];
     const newGraphId = savedGraphs.length ? Math.max(...savedGraphs.map(x => x.id)) + 1 : 1;
     this._graph = new Graph(newGraphId);
-    this._vertexs = [];
+    this._vertices = [];
     this._edges = [];
     this._adjacencyMatrix = [];
     this._incidenceMatrix = [];
@@ -45,7 +45,7 @@ export class GraphService {
 
   removeCurrentGraph() {
     this._graph = undefined;
-    this._vertexs = [];
+    this._vertices = [];
     this._edges = [];
     this._adjacencyMatrix = [];
     this._incidenceMatrix = [];
@@ -73,7 +73,7 @@ export class GraphService {
   addNewVertex(e: MouseEvent) {
     if (e.target instanceof SVGSVGElement) {
       const { x, y } = this.svgGraphicsService.parsePoint(e);
-      const newVertexId = this._vertexs.length ?  this._vertexs.length : 0;
+      const newVertexId = this._vertices.length ?  this._vertices.length : 0;
       const vertex = new Vertex(newVertexId, x, y, 15);
       this.addVertex(vertex);
     }
@@ -88,7 +88,7 @@ export class GraphService {
   }
 
   onClickVertexMode_1(id: number) {
-    this.setNullPathVertexs();
+    this.setNullPathvertices();
     const vertex = this.getVertexById(id);
     if (this.isSelectedElementVertex) {
       if (this._selectedElement === vertex) {
@@ -178,7 +178,7 @@ export class GraphService {
     }
   }
 
-  setNullPathVertexs() {
+  setNullPathvertices() {
     if (this._pathStartVertex) {
       this._pathStartVertex.setDisabled();
       this._pathStartVertex = null;
@@ -207,7 +207,7 @@ export class GraphService {
 
   onClickEdge(id: number) {
     this.clearAllColors();
-    this.setNullPathVertexs();
+    this.setNullPathvertices();
     const edge = this.getEdgeById(id);
     if (!this._selectedElement) {
       this._selectedElement = edge;
@@ -228,12 +228,12 @@ export class GraphService {
   }
 
   addVertex(vertex: Vertex) {
-    this._vertexs.push(vertex);
+    this._vertices.push(vertex);
   }
 
   deleteVertex(id: number) {
-    this._vertexs = this._vertexs.filter(v => v.id !== id);
-    this.updateVertexsIds();
+    this._vertices = this._vertices.filter(v => v.id !== id);
+    this.updateverticesIds();
   }
 
   deleteEdge(id: number) {
@@ -251,7 +251,7 @@ export class GraphService {
 
   deleteVertexWoutEdges() {
     let hasEdges;  
-    this._vertexs.forEach(v => {
+    this._vertices.forEach(v => {
       hasEdges = false;
       this._edges.forEach(e => {
         if (v.id === e.v1 || v.id === e.v2) {
@@ -290,7 +290,7 @@ export class GraphService {
 
   getVertexById(id: number): Vertex {
     let vertex = null;
-    this._vertexs.forEach(v => {
+    this._vertices.forEach(v => {
       if (v.id === id) {
         vertex = v;
       }
@@ -334,7 +334,7 @@ export class GraphService {
       this._selectedDraggedVertex.cx = x;
       this._selectedDraggedVertex.cy = y;
 
-      this._vertexs.forEach(v => {
+      this._vertices.forEach(v => {
         if (v !== this._selectedDraggedVertex) {
           v.cx += dx;
           v.cy += dy;
@@ -355,7 +355,7 @@ export class GraphService {
       this._selectedDraggedVertex.cx = x;
       this._selectedDraggedVertex.cy = y;
 
-      this._vertexs.forEach(v => {
+      this._vertices.forEach(v => {
         if (v != this._selectedDraggedVertex) {
           if (cComponentsArray[v.id] === dVertexComponentNumber) {
             v.cx += dx;
@@ -379,9 +379,9 @@ export class GraphService {
     });
   }
 
-  updateVertexsIds() {
+  updateverticesIds() {
     let id = 0;
-    this._vertexs.forEach(v => {
+    this._vertices.forEach(v => {
       this.updateEdgesVertexId(v.id, id);
       v.id = id++;
     });
@@ -404,16 +404,16 @@ export class GraphService {
     });
   }
 
-  createAdjacencyMatrix(vertexs: Vertex[], edges: Edge[]) {
+  createAdjacencyMatrix(vertices: Vertex[], edges: Edge[]) {
     let aMatrix: number[][] = [];
-    for (let i = 0; i < vertexs.length; i++) {
+    for (let i = 0; i < vertices.length; i++) {
       aMatrix[i] = [];
-      for (let j = 0; j < vertexs.length; j++) {
+      for (let j = 0; j < vertices.length; j++) {
         aMatrix[i][j] = 0;
       }
     }
-    for (let i = 0; i < vertexs.length; i++) {
-      for (let j = 0; j < vertexs.length; j++) {
+    for (let i = 0; i < vertices.length; i++) {
+      for (let j = 0; j < vertices.length; j++) {
         edges.forEach(e => {
           if ((e.v1 === i && e.v2 === j) || (e.v1 === j && e.v2 === i)) {
             aMatrix[i][j] = 1;
@@ -425,18 +425,18 @@ export class GraphService {
   }
 
   updateAdjacencyMatrix() {
-    this._adjacencyMatrix = this.createAdjacencyMatrix(this._vertexs, this._edges);
+    this._adjacencyMatrix = this.createAdjacencyMatrix(this._vertices, this._edges);
   }
 
-  createIncidenceMatrix(vertexs: Vertex[], edges: Edge[]) {
+  createIncidenceMatrix(vertices: Vertex[], edges: Edge[]) {
     let iMatrix: number[][] = [];
-    for (let i = 0; i < vertexs.length; i++) {
+    for (let i = 0; i < vertices.length; i++) {
       iMatrix[i] = [];
       for (let j = 0; j < edges.length; j++) {
         iMatrix[i][j] = 0;
       }
     }
-    for (let i = 0; i < vertexs.length; i++) {
+    for (let i = 0; i < vertices.length; i++) {
       for (let j = 0; j < edges.length; j++) {
         if (edges[j].v1 === i || edges[j].v2 === i) {
           iMatrix[i][j] = 1;
@@ -447,12 +447,12 @@ export class GraphService {
   }
 
   updateIncidenceMatrix() {
-    this._incidenceMatrix = this.createIncidenceMatrix(this._vertexs, this._edges);
+    this._incidenceMatrix = this.createIncidenceMatrix(this._vertices, this._edges);
   }
 
-  createAdjacencyLists(vertexs: Vertex[], edges: Edge[]) {
+  createAdjacencyLists(vertices: Vertex[], edges: Edge[]) {
     let aLists: number[][] = [];
-    for (let i = 0; i < vertexs.length; i++) {
+    for (let i = 0; i < vertices.length; i++) {
       aLists[i] = [];
       for (let j = 0; j < edges.length; j++) {
         if (edges[j].v1 === i)
@@ -465,34 +465,34 @@ export class GraphService {
   }
 
   updateAdjacencyLists() {
-    this._adjacencyLists = this.createAdjacencyLists(this._vertexs, this._edges);
+    this._adjacencyLists = this.createAdjacencyLists(this._vertices, this._edges);
   }
 
   createLineGraph() {
-    this._lineGraphVertexs = [];
+    this._lineGraphvertices = [];
     this._lineGraphEdges = [];
     this.updateAdjacencyMatrix();
 
     for (let i = 0; i < this._edges.length; i++) {
       const e = this._edges[i]; 
-      this._lineGraphVertexs.push(new Vertex(i, (e.x1 + e.x2) / 2, (e.y1 + e.y2) / 2, 15));
+      this._lineGraphvertices.push(new Vertex(i, (e.x1 + e.x2) / 2, (e.y1 + e.y2) / 2, 15));
     }
 
     let edgeId = 0;
-    for (let v = 0; v < this._vertexs.length; v++) {
-      for (let u = 0; u < this._vertexs.length; u++) {
+    for (let v = 0; v < this._vertices.length; v++) {
+      for (let u = 0; u < this._vertices.length; u++) {
         if (this._adjacencyMatrix[v][u] === 1) {
-          const index_vu = this.getEdgeIdByVertexsIds(v, u);
+          const index_vu = this.getEdgeIdByverticesIds(v, u);
           // console.log('%c' + v + ' - ' + u, 'color: blue'); 
-          for (let w = 0; w < this._vertexs.length; w++) {
+          for (let w = 0; w < this._vertices.length; w++) {
             if (this._adjacencyMatrix[u][w] === 1) {
               if (w === v)
                 continue;
               // console.log('%c' + u + ' - ' + w, 'color: green');
-              const index_uw = this.getEdgeIdByVertexsIds(u, w);
+              const index_uw = this.getEdgeIdByverticesIds(u, w);
               // console.log('%c(' + index_vu + ' - ' + index_uw + ')', 'color: red');
-              let v1 = this._lineGraphVertexs[index_vu];
-              let v2 = this._lineGraphVertexs[index_uw];
+              let v1 = this._lineGraphvertices[index_vu];
+              let v2 = this._lineGraphvertices[index_uw];
               // console.log('%c(' + v1.id + ' - ' + v2.id + ')', 'color: yellow');
               if (!(this.lineGraphEdgeExists(v1.id, v2.id) || this.lineGraphEdgeExists(v2.id, v1.id)))
                 this._lineGraphEdges.push(new Edge(edgeId++, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy));         
@@ -505,11 +505,11 @@ export class GraphService {
 
   setLineGraphActive() {
     this.initNewGraph();
-    this._vertexs = this._lineGraphVertexs;
+    this._vertices = this._lineGraphvertices;
     this._edges = this._lineGraphEdges;
   }
 
-  getEdgeIdByVertexsIds(v1_id: number, v2_id: number): number {
+  getEdgeIdByverticesIds(v1_id: number, v2_id: number): number {
     let result: number = null;
     this._edges.forEach(e => {
       if ((e.v1 === v1_id && e.v2 === v2_id || e.v1 === v2_id && e.v2 === v1_id)) {
@@ -530,18 +530,18 @@ export class GraphService {
 
   calcGraphDegree(): number {
     this.updateAdjacencyMatrix();
-    if (this._vertexs.length > 0) {
-      let vertexsDegrees: number[] = new Array(this._vertexs.length);
-      vertexsDegrees.fill(0, 0, this._vertexs.length);
-      for (let i = 0; i < this._vertexs.length; i++) {
-        for (let j = 0; j < this._vertexs.length; j++) {
+    if (this._vertices.length > 0) {
+      let verticesDegrees: number[] = new Array(this._vertices.length);
+      verticesDegrees.fill(0, 0, this._vertices.length);
+      for (let i = 0; i < this._vertices.length; i++) {
+        for (let j = 0; j < this._vertices.length; j++) {
           if (i === j)
             continue;
           if (this._adjacencyMatrix[i][j] === 1)
-            vertexsDegrees[i]++;
+            verticesDegrees[i]++;
         } 
       }
-      return Math.max(...vertexsDegrees);
+      return Math.max(...verticesDegrees);
     } else {
       return 0;
     }
@@ -549,25 +549,25 @@ export class GraphService {
 
   // @@@ Calculate any path
   private $_visited: boolean[];
-  private $_vertexsStack: number[];
+  private $_verticesStack: number[];
 
   calcAnyPath() {
-    this.$_visited = new Array(this._vertexs.length);
+    this.$_visited = new Array(this._vertices.length);
     this.$_visited.fill(false, 0, this.$_visited.length);
-    this.$_vertexsStack = [];
+    this.$_verticesStack = [];
     if (this.DFS(this._pathStartVertex.id) === false)
       return [];
     else
-      return this.$_vertexsStack;
+      return this.$_verticesStack;
   }
 
   private DFS(id: number): boolean {
     this.$_visited[id] = true;
-    this.$_vertexsStack.push(id);
+    this.$_verticesStack.push(id);
     if (id === this._pathEndVertex.id) {
       return true;
     }
-    for (let i = 0; i < this._vertexs.length; i++) {
+    for (let i = 0; i < this._vertices.length; i++) {
       if (i === id)
         continue;
       if (this._adjacencyMatrix[id][i] === 1) {
@@ -577,14 +577,14 @@ export class GraphService {
           return true;
       }
     }
-    this.$_vertexsStack.pop();
+    this.$_verticesStack.pop();
     return false;
   }
   // @@@
 
   setPathHighlighted(path: number[]) {
     for (let i = 0; i < path.length - 1; i++) {
-      const edgeId: number = this.getEdgeIdByVertexsIds(path[i], path[i+1]);
+      const edgeId: number = this.getEdgeIdByverticesIds(path[i], path[i+1]);
       this._edges[edgeId].setHighlighted();
     }
   }
@@ -598,54 +598,54 @@ export class GraphService {
   // Check if graf is connected or not
   isGraphConnected(): boolean {
     this.updateAdjacencyMatrix();
-    let visited: boolean[] = new Array(this._vertexs.length);
-    let vertexsStack: number[] = [];
+    let visited: boolean[] = new Array(this._vertices.length);
+    let verticesStack: number[] = [];
     let countVisited = 0;
     visited.fill(false, 0, visited.length);
-    vertexsStack.push(0);
+    verticesStack.push(0);
     visited[0] = true;
-    while (vertexsStack.length > 0) {
-      let v = vertexsStack[vertexsStack.length-1];
-      vertexsStack.pop();
+    while (verticesStack.length > 0) {
+      let v = verticesStack[verticesStack.length-1];
+      verticesStack.pop();
       countVisited++;
-      for (let u = 0; u < this._vertexs.length; u++) {
+      for (let u = 0; u < this._vertices.length; u++) {
         if (u === v)
           continue;
         if (this._adjacencyMatrix[v][u] === 1) {
           if (visited[u] === true)
             continue;
             visited[u] = true;
-            vertexsStack.push(u);
+            verticesStack.push(u);
         }
       }
     }
-    if (countVisited === this._vertexs.length)
+    if (countVisited === this._vertices.length)
       return true;
     return false;
   }
 
   calcConnectedComponents(): number[] {
     this.updateAdjacencyMatrix();
-    let C: number[] = new Array(this._vertexs.length);
-    let vertexsStack: number[] = [];
+    let C: number[] = new Array(this._vertices.length);
+    let verticesStack: number[] = [];
     let cComponentsCounter = 0;
     C.fill(0, 0, C.length);
-    for (let i = 0; i < this._vertexs.length; i++) {
+    for (let i = 0; i < this._vertices.length; i++) {
       if (C[i] > 0)
         continue;
       cComponentsCounter++;
-      vertexsStack.push(i);
+      verticesStack.push(i);
       C[i] = cComponentsCounter;
-      while (vertexsStack.length > 0) {
-        let v = vertexsStack[vertexsStack.length - 1];
-        vertexsStack.pop()
-        for (let u = 0; u < this._vertexs.length; u++) {
+      while (verticesStack.length > 0) {
+        let v = verticesStack[verticesStack.length - 1];
+        verticesStack.pop()
+        for (let u = 0; u < this._vertices.length; u++) {
             if (u === v)
               continue;
             if (this._adjacencyMatrix[v][u] === 1) {
               if (C[u] > 0)
                 continue;
-              vertexsStack.push(u);
+              verticesStack.push(u);
               C[u] = cComponentsCounter;
             }
         }
@@ -670,9 +670,9 @@ export class GraphService {
     const cUniqueValues: number[] = C.filter(onlyUnique);
     cUniqueValues.forEach((uv) => {
       const randomColor = this.getRandomColor();
-      this._vertexs.forEach(v => {
+      this._vertices.forEach(v => {
         if (C[v.id] === uv) {
-          this._vertexs[v.id].fill = randomColor;
+          this._vertices[v.id].fill = randomColor;
           const connectedEdges: Edge[] = this.getAllConnectedEdgesByVertexId(v.id);
           if (connectedEdges.length > 0) {
             connectedEdges.forEach(e => {
@@ -685,7 +685,7 @@ export class GraphService {
   }
 
   clearAllColors() {
-    this._vertexs.forEach(v => {
+    this._vertices.forEach(v => {
       v.setDisabled();
     });
     this._edges.forEach(e => {
@@ -695,11 +695,11 @@ export class GraphService {
 
   calcBreadthFirstSpanningTree(): number[][] {
     this.updateAdjacencyMatrix();
-    let visited: boolean[] = new Array(this._vertexs.length);
+    let visited: boolean[] = new Array(this._vertices.length);
     let T: number[][] = [];
     let Q: number[] = [];
     visited.fill(false, 0, visited.length);
-    for (let i = 0; i < this._vertexs.length; i++) {
+    for (let i = 0; i < this._vertices.length; i++) {
       T[i] = [];
     }
     Q.push(-1); Q.push(this._bfsTreeRoot.id);
@@ -709,7 +709,7 @@ export class GraphService {
       let w = Q[0]; Q.reverse(); Q.pop(); Q.reverse();
       if (v > -1)
         T[v].push(w);
-      for (let z = 0; z < this._vertexs.length; z++) {
+      for (let z = 0; z < this._vertices.length; z++) {
         if (z === w)
           continue;
         if (this._adjacencyMatrix[w][z] === 1) {
@@ -728,9 +728,9 @@ export class GraphService {
     this.clearAllColors();
     this._bfsTreeRoot.fill = this.getRandomColor();
     const randomColor = this.getRandomColor();
-    for (let i = 0; i < this._vertexs.length; i++) {
+    for (let i = 0; i < this._vertices.length; i++) {
       for (let j = 0; j < T[i].length; j++) {
-        const edge = this._edges[this.getEdgeIdByVertexsIds(i, T[i][j])];
+        const edge = this._edges[this.getEdgeIdByverticesIds(i, T[i][j])];
         this.getVertexById(T[i][j]).fill = randomColor;
         edge.stroke = randomColor;
       }
@@ -742,8 +742,8 @@ export class GraphService {
     return this._graph;
   }
 
-  get vertexs(): Vertex[] {
-    return this._vertexs;
+  get vertices(): Vertex[] {
+    return this._vertices;
   }
 
   get edges(): Edge[] {

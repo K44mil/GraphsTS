@@ -3,7 +3,7 @@ import { Vertex, Edge, Loop } from './';
 export class Graph {
 
     private _id: number;
-    private _vertexs: Vertex[];
+    private _vertices: Vertex[];
     private _edges: Edge[];
     private _loops: Loop[];
     private _name: string;
@@ -13,7 +13,7 @@ export class Graph {
     // Constructor
     constructor(
         id: number,   
-        vertexs: Vertex[] = [],
+        vertices: Vertex[] = [],
         edges: Edge[] = [],
         loops: Loop[] = [],
         name: string = '',
@@ -21,7 +21,7 @@ export class Graph {
         isSaved: boolean = false
     ) {
         this._id = id;
-        this._vertexs = vertexs;
+        this._vertices = vertices;
         this._edges = edges;
         this._loops = loops;
         this._name = name;
@@ -32,8 +32,8 @@ export class Graph {
     // Public Methods
     getVertexById(id: number): Vertex {
         let result: Vertex = null;
-        if (this._vertexs.length >= id)
-            result = this._vertexs[id];   
+        if (this._vertices.length >= id)
+            result = this._vertices[id];   
         return result;
     }
 
@@ -87,7 +87,7 @@ export class Graph {
         return result;
     }
 
-    getEdgeByVertexsIds(v1: number, v2: number): Edge {
+    getEdgeByVerticesIds(v1: number, v2: number): Edge {
         let result: Edge = null;
         this._edges.forEach(e => {
             if (e.v1 === v1 && e.v2 === v2)
@@ -98,11 +98,11 @@ export class Graph {
 
     deleteVertexById(id: number): Vertex {
         let result: Vertex = null;
-        const filterResult = this._vertexs.filter(v => v.id === id)
+        const filterResult = this._vertices.filter(v => v.id === id)
         if (filterResult.length > 0)
             result = filterResult[0];
-        this._vertexs = this._vertexs.filter(v => v.id !== id);
-        this.updateVertexsIds();
+        this._vertices = this._vertices.filter(v => v.id !== id);
+        this.updateVerticesIds();
         this.deleteEdgesConnectedToVertex(result.id);
         return result;
     }
@@ -136,9 +136,9 @@ export class Graph {
         return result;
     }
 
-    private updateVertexsIds(): void {
+    private updateVerticesIds(): void {
         let id = 0;
-        this._vertexs.forEach(v => {
+        this._vertices.forEach(v => {
           this.updateEdgesVertexId(v.id, id);
           v.id = id++;
         });
@@ -177,12 +177,12 @@ export class Graph {
         this._id = val;
     }
 
-    get vertexs(): Vertex[] {
-        return this._vertexs;
+    get vertices(): Vertex[] {
+        return this._vertices;
     }
 
-    set vertexs(val: Vertex[]) {
-        this._vertexs = val;
+    set vertices(val: Vertex[]) {
+        this._vertices = val;
     }
 
     get edges(): Edge[] {
