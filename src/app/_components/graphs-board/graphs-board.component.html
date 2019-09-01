@@ -5,12 +5,9 @@
             id="svgGraphsBoard"
             width="1000"
             height="800"
-            viewBox="0 0 1000 800"
-            (dblclick)="drawNewVertex($event)"
-            (mousemove)="onMouseMoveOnBoard($event)"
-            (mouseup)="dropDraggedVertex($event)">
+            viewBox="0 0 1000 800">
 
-            <line *ngFor="let edge of edges"
+            <!-- <line *ngFor="let edge of edges"
             [attr.x1]="edge.x1"
             [attr.y1]="edge.y1"
             [attr.x2]="edge.x2"
@@ -35,7 +32,7 @@
                 <title>
                     {{ vertex.id }}
                 </title>
-            </circle>
+            </circle> -->
 
             </svg>
         </div>
@@ -48,15 +45,8 @@
                     <h5>Graph Info</h5>
                 </div>
                 <div class="card-body">
-                    <p>Graph order: {{ graphOrder }}</p>
-                    <p>Graph size: {{ graphSize }}</p>
-                    <p>Graph degree: {{ graphDegree }}</p>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row" style="margin-top: 10px">
-            <button class="btn btn-warning" (click)="clearGraphsBoard()">RESET</button>
-            <button class="btn btn-danger" (click)="removeFromGraphsBoard()">REMOVE</button> 
     </div>
 </div>
