@@ -1,7 +1,8 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { GraphService } from '../../_services/graph.service';
 import { GraphEventHandlerService } from '../../_services/graph-event-handler.service';
-import { Graph, Vertex, Edge } from '../../_models';
+import { Graph } from '../../_models';
+import { Line } from '../../_models/_svgModels/line';
 
 @Component({
   selector: 'app-graphs-board',
@@ -11,6 +12,7 @@ import { Graph, Vertex, Edge } from '../../_models';
 export class GraphsBoardComponent implements OnInit {
 
   graph: Graph;
+  cLine: Line;
   /**
      * MODES:
      * 0 - draw graph
@@ -36,47 +38,32 @@ export class GraphsBoardComponent implements OnInit {
 
   updateGraphView() {
     this.graph = this.graphService.graph;
+    this.cLine = this.graphService.cLine;
   }
 
   // Events
   onClickBoard(e: MouseEvent) {
-    switch (this._mode) {
-      case 0:
-        // onClickBoardMode_0
-        break;
-    }
+    this.graphService.handleBoardEvent(e, this._mode);
+    this.updateGraphView();
   }
 
-  onClickVertex(id: number) {
-    switch (this._mode) {
-      case 0:
-        // onClickVertexMode_0
-        break;
-    }
+  onClickVertex(e: MouseEvent, id: number) {
+    this.graphService.handleVertexEvent(e, id, this._mode);
+    this.updateGraphView();
   }
 
   onClickEdge(id: number) {
-    switch (this._mode) {
-      case 0:
-        // onClickEdgeMode_0
-        break;
-    }
+    this.graphService.handleEdgeEvent(id, this._mode);
+    this.updateGraphView();
   }
 
   onClickLoop(id: number) {
-    switch (this._mode) {
-      case 0:
-        // onClickLoopMode_0
-        break;
-    }
+    this.graphService.handleLoopEvent(id, this._mode);
+    this.updateGraphView();
   }
 
-  onDblclickVertex(id: number) {
-    switch (this._mode) {
-      case 0:
-        // onDblclickVertexMode_0
-        break;
-    }
+  onDblclickVertex(e: MouseEvent, id: number) {
+    this.graphService.handleVertexEvent(e, id, this._mode);
   }
 
   onMouseDownVertex(id: number) {
@@ -112,7 +99,7 @@ export class GraphsBoardComponent implements OnInit {
   }
 
   onWheelBoard(e: MouseEvent) {
-    
+    console.log(e);
   }
 
   // graph: Graph;

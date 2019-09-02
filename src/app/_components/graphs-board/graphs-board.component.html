@@ -5,9 +5,39 @@
             id="svgGraphsBoard"
             width="1000"
             height="800"
-            viewBox="0 0 1000 800">
+            viewBox="0 0 1000 800"
+            (click)="onClickBoard($event)"
+            (onmouseup)="onMouseUpBoard($event)"
+            (mousemove)="onMouseMove($event)"
+            (wheel)="onWheelBoard($event)">
 
-            <!-- <line *ngFor="let edge of edges"
+            <!-- CONNECTING LINE -->
+            <line *ngIf="cLine"
+            [attr.x1]="cLine.x1"
+            [attr.y1]="cLine.y1"
+            [attr.x2]="cLine.x2"
+            [attr.y2]="cLine.y2"
+            [attr.stroke]="cLine.stroke"
+            [attr.stroke-width]="cLine.strokeWidth">
+
+            </line>
+
+
+            <!-- LOOPS -->
+            <circle *ngFor="let loop of graph.loops"
+            [attr.cx]="loop.cx"
+            [attr.cy]="loop.cy"
+            [attr.r]="loop.r"
+            [attr.fill]="loop.fill"
+            [attr.stroke]="loop.stroke"
+            [attr.stroke-width]="loop.strokeWidth">
+                <title>
+                    {{ loop.id }}
+                </title>
+            </circle>
+
+            <!-- EDGES -->
+            <line *ngFor="let edge of graph.edges"
             [attr.x1]="edge.x1"
             [attr.y1]="edge.y1"
             [attr.x2]="edge.x2"
@@ -20,19 +50,20 @@
                 </title>
             </line>
 
-            <circle *ngFor="let vertex of vertexs"
+            <!-- VERTICES -->
+            <circle *ngFor="let vertex of graph.vertices"
             [attr.cx]="vertex.cx"
             [attr.cy]="vertex.cy"
             [attr.r]="vertex.r"
             [attr.fill]="vertex.fill"
             [attr.stroke]="vertex.stroke"
             [attr.stroke-width]="vertex.strokeWidth"
-            (click)="onClickVertex(vertex.id)"
-            (mousedown)="selectDraggableVertex(vertex.id)">
+            (click)="onClickVertex($event, vertex.id)"
+            (dblclick)="onDblclickVertex($event, vertex.id)">
                 <title>
                     {{ vertex.id }}
                 </title>
-            </circle> -->
+            </circle>
 
             </svg>
         </div>

@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Graph, Vertex } from '../_models';
+import { Graph, Vertex, Edge, Loop } from '../_models';
 import { GraphCalcService } from './graph-calc.service';
 import { GraphDrawService } from './graph-draw.service';
+import { SvgGraphicsService } from './svg-graphics.service';
+import { Line } from '../_models/_svgModels';
 
 @Injectable({
   providedIn: 'root'
@@ -9,15 +11,18 @@ import { GraphDrawService } from './graph-draw.service';
 export class GraphService {
 
   private _graph: Graph;
+  private _cLine: Line;
   private _adjacencyMatrix: number[][];
   private _incidenceMatrix: number[][];
   private _adjacencyLists: number[][];
   private _selectedElements: any[] = [];
   private _selectedDraggableVertex: Vertex;
+  private _edgeStartVertex: Vertex;
 
   constructor(
     private graphCalcService: GraphCalcService,
-    private graphDrawService: GraphDrawService
+    private graphDrawService: GraphDrawService,
+    private svgGraphicsService: SvgGraphicsService
   ) { }
 
   private updateAdjacencyMatrix() {
@@ -32,9 +37,208 @@ export class GraphService {
     this._adjacencyLists = this.graphCalcService.createAdjacencyLists(this._graph.vertices, this._graph.edges, this._graph.loops, this._graph.isDigraph);
   }
 
+  handleBoardEvent(e: any, mode: number) {
+    if (e instanceof MouseEvent) {
+      switch (mode) {
+        case 0:
+          this.onClickBoardMode_0(e);
+          break;
+      }
+    }
+  }
+
+  handleVertexEvent(e: MouseEvent, id: number, mode: number) {
+    switch (mode) {
+      case 0:
+        if (e.type === 'click')
+          this.onClickVertexMode_0(id);
+        else if (e.type === 'dblclick')
+          this.onDblclickVertexMode_0(id);
+        else if (e.type === 'mousedown')
+          this.onMouseDownVertexMode_0(id);
+        break;
+    }
+  }
+
+  handleEdgeEvent(e: any, mode: number) {
+    if (typeof(e) === 'number') {
+      switch (mode) {
+        case 0:
+          this.onClickEdgeMode_0(e);
+          break;
+      }
+    }
+  }
+
+  handleLoopEvent(e: any, mode: number) {
+    if (typeof(e) === 'number') {
+      switch (mode) {
+        case 0:
+          this.onClickLoopMode_0(e);
+          break;
+      }
+    }
+  }
+
+  private unselectAllElements() {
+    this._selectedElements.forEach(e => {
+      e.setDisabled();
+    });
+    this._selectedElements = [];
+  }
+
+  // Events
+  // Create new vertex or unselect current selected elements if selected
+  private onClickBoardMode_0(e: MouseEvent) {
+    if (e.target instanceof SVGSVGElement) {
+      if (this._selectedElements !== []) {
+        this.unselectAllElements();
+      } else {
+        const { x, y } = this.svgGraphicsService.parsePoint(e);
+        const id = this._graph.vertices.length ?  this._graph.vertices.length : 0;
+        const vertex = new Vertex(id, x, y, 15);
+        this._graph.vertices.push(vertex);
+      }
+    }
+  }
+
+  // Select vertex and unselect current selected elements
+  private onClickVertexMode_0(id: number) {
+    const vertex = this._graph.getVertexById(id);
+    if (this.isOnlyOneSelectedElement) {
+      if (this.isFirstSelectedElementVertex)
+        if (this.firstSelectedElement.id === vertex.id) {
+          this.firstSelectedElement.setDisabled();
+          this._selectedElements = [];
+        }
+    } else if (this._selectedElements !== []) {
+      this.unselectAllElements();
+      vertex.setActive();
+      this._selectedElements.push(vertex);
+    } else {
+      vertex.setActive();
+      this._selectedElements.push(vertex);
+    }
+  }
+
+  // Select edge and unselect current selected elements
+  private onClickEdgeMode_0(id: number) {
+    const edge = this._graph.getEdgeById(id);
+    if (this.isOnlyOneSelectedElement) {
+      if (this.isFirsSelectedElementEdge)
+        if (this.firstSelectedElement.id === edge.id) {
+          this.firstSelectedElement.setDisabled();
+          this._selectedElements = [];
+        }
+    } else if (this._selectedElements !== []) {
+      this.unselectAllElements();
+      edge.setActive();
+      this._selectedElements.push(edge);
+    } else {
+      edge.setActive();
+      this._selectedElements.push(edge);
+    }
+  }
+
+  // Select loop and unselect current selected elements
+  private onClickLoopMode_0(id: number) {
+    const loop = this._graph.getLoopById(id);
+    if (this.isOnlyOneSelectedElement) {
+      if (this.isFirsSelectedElementLoop)
+        if (this.firstSelectedElement.id === loop.id) {
+          this.firstSelectedElement.setDisabled();
+          this._selectedElements = [];
+        }
+    } else if (this._selectedElements !== []) {
+      this.unselectAllElements();
+      loop.setActive();
+      this._selectedElements.push(loop);
+    } else {
+      loop.setActive();
+      this._selectedElements.push(loop);
+    }
+  }
+
+  // create new loop
+  private onDblclickVertexMode_0(id: number) {
+    if (!this._graph.getLoopByVertexId(id)) {
+      const v = this._graph.getVertexById(id);
+      const loopId = this._graph.loops.length ? this._graph.loops.length : 0;
+      const loop = new Loop(loopId, id, v.cx + v.r, v.cy + v.r, v.r);
+      this._graph.loops.push(loop); 
+    }
+  }
+
+  // Create line from getVertexById(id) to mouse pointer, and select this element
+  private onMouseDownVertexMode_0(id: number) {
+    this._edgeStartVertex = this._graph.getVertexById(id);
+    this._cLine = new Line(0,
+                           this._edgeStartVertex.cx,
+                           this._edgeStartVertex.cy,
+                           this._edgeStartVertex.cx,
+                           this._edgeStartVertex.cy,
+                           'blue',
+                           5
+                          );
+  }
+
+  // Create new edge from startVertex to this vertex
+  private onMouseUpVertexMode_0(id: number) {
+    const vertex = this._graph.getVertexById(id);
+    if (this._edgeStartVertex && this._cLine) {
+      if (this._edgeStartVertex.id === vertex.id) {
+        this._cLine = null;
+        this._edgeStartVertex = null;
+      } else {
+        if (!this._graph.getEdgeByVerticesIds(this._edgeStartVertex.id, vertex.id)) {
+          // TODO
+        }
+      }
+    }
+  }
+
+
+
   // Getters
   get graph(): Graph {
     return this._graph;
+  }
+
+  get cLine(): Line {
+    return this._cLine;
+  }
+
+  private get isFirstSelectedElementVertex(): boolean {
+    if (this._selectedElements[0] instanceof Vertex)
+      return true;
+    else
+      return false;
+  }
+
+  private get isFirsSelectedElementEdge(): boolean {
+    if (this._selectedElements[0] instanceof Edge)
+      return true;
+    else
+      return false;
+  }
+
+  private get isFirsSelectedElementLoop(): boolean {
+    if (this._selectedElements[0] instanceof Loop)
+      return true;
+    else
+      return false;
+  }
+
+  private get isOnlyOneSelectedElement(): boolean {
+    if (this._selectedElements.length === 1)
+      return true;
+    else
+      return false;
+  }
+
+  private get firstSelectedElement(): any {
+    if (this._selectedElements !== [])
+      return this._selectedElements[0];
   }
 
   // private _graph: Graph;
@@ -792,19 +996,5 @@ export class GraphService {
   //   return this._adjacencyLists;
   // }
 
-  // get isSelectedElementVertex(): boolean {
-  //   if (this._selectedElement instanceof Vertex) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
-
-  // get isSelectedElementEdge(): boolean {
-  //   if (this._selectedElement instanceof Edge) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
+  
 }
