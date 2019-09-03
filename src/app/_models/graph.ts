@@ -169,7 +169,8 @@ export class Graph {
     }
     private deleteLoopsConnectedToVertex(id: number): Loop {
         let result: Loop = this.getLoopByVertexId(id);
-        this.deleteLoopById(result.id);
+        if (result)
+            this.deleteLoopById(result.id);
         return result;
     }
 

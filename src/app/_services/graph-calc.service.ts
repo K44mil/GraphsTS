@@ -120,4 +120,124 @@ export class GraphCalcService {
     return C;
   }
 
+  calcGraphDegree(graph: Graph): number {
+    const aMatrix = this.createAdjacencyMatrix(graph);
+    const { vertices } = graph;
+    if (vertices.length > 0) {
+      let verticesDegrees: number[] = new Array(vertices.length);
+      verticesDegrees.fill(0, 0, vertices.length);
+      for (let i = 0; i < vertices.length; i++) {
+        for (let j = 0; j < vertices.length; j++) {
+          if (aMatrix[i][j] === 1)
+            verticesDegrees[i]++;
+          else if (aMatrix[i][j] === 2)
+            verticesDegrees[i] += 2;
+        } 
+      }
+      return Math.max(...verticesDegrees);
+    } else {
+      return 0;
+    }
+  }
+
+  // Check if graf is connected or not
+  isGraphConnected(graph: Graph): boolean {
+    const aMatrix = this.createAdjacencyMatrix(graph);
+    const { vertices } = graph;
+    let visited: boolean[] = new Array(vertices.length);
+    let verticesStack: number[] = [];
+    let countVisited = 0;
+    visited.fill(false, 0, visited.length);
+    verticesStack.push(0);
+    visited[0] = true;
+    while (verticesStack.length > 0) {
+      let v = verticesStack[verticesStack.length-1];
+      verticesStack.pop();
+      countVisited++;
+      for (let u = 0; u < vertices.length; u++) {
+        if (u === v)
+          continue;
+        if (aMatrix[v][u] === 1) {
+          if (visited[u] === true)
+            continue;
+            visited[u] = true;
+            verticesStack.push(u);
+        }
+      }
+    }
+    if (countVisited === vertices.length)
+      return true;
+    return false;
+  }
+
+  // @@@ Calculate any path
+  private $_visited: boolean[];
+  private $_verticesStack: number[];
+
+  calcAnyPath(graph: Graph, startVertex: Vertex, endVertex: Vertex) {
+    const { vertices } = graph;
+    const aMatrix = this.createAdjacencyMatrix(graph);
+    this.$_visited = new Array(vertices.length);
+    this.$_visited.fill(false, 0, this.$_visited.length);
+    this.$_verticesStack = [];
+    if (this.DFS(startVertex.id, graph, endVertex, aMatrix) === false)
+      return [];
+    else
+      return this.$_verticesStack;
+  }
+
+  private DFS(id: number, graph: Graph, endVertex: Vertex, aMatrix: number[][]): boolean {
+    const { vertices } = graph;
+    this.$_visited[id] = true;
+    this.$_verticesStack.push(id);
+    if (id === endVertex.id) {
+      return true;
+    }
+    for (let i = 0; i < vertices.length; i++) {
+      if (i === id)
+        continue;
+      if (aMatrix[id][i] === 1) {
+        if (this.$_visited[i] === true)
+          continue;
+        if (this.DFS(i, graph, endVertex, aMatrix) === true)
+          return true;
+      }
+    }
+    this.$_verticesStack.pop();
+    return false;
+  }
+  // @@@
+
+  calcBreadthFirstSpanningTree(graph: Graph, bfsTreeRoot: Vertex): number[][] {
+    const aMatrix = this.createAdjacencyMatrix(graph);
+    const { vertices } = graph;
+    let visited: boolean[] = new Array(vertices.length);
+    let T: number[][] = [];
+    let Q: number[] = [];
+    visited.fill(false, 0, visited.length);
+    for (let i = 0; i < vertices.length; i++) {
+      T[i] = [];
+    }
+    Q.push(-1); Q.push(bfsTreeRoot.id);
+    visited[bfsTreeRoot.id] = true;
+    while (Q.length > 0) {
+      let v = Q[0]; Q.reverse(); Q.pop(); Q.reverse();
+      let w = Q[0]; Q.reverse(); Q.pop(); Q.reverse();
+      if (v > -1)
+        T[v].push(w);
+      for (let z = 0; z < vertices.length; z++) {
+        if (z === w)
+          continue;
+        if (aMatrix[w][z] === 1) {
+          if (visited[z] === true)
+            continue;
+          visited[z] = true;
+          Q.push(w);
+          Q.push(z);
+        }
+      }
+    }
+    return T;
+  }
+
 }
