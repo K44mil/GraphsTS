@@ -30,15 +30,15 @@ export class GraphService {
   }
 
   private updateAdjacencyMatrix() {
-    this._adjacencyMatrix = this.graphCalcService.createAdjacencyMatrix(this._graph.vertices, this._graph.edges, this._graph.loops, this._graph.isDigraph);
+    this._adjacencyMatrix = this.graphCalcService.createAdjacencyMatrix(this._graph);
   }
 
   private updateIncidenceMatrix() {
-    this._incidenceMatrix = this.graphCalcService.createIncidenceMatrix(this._graph.vertices, this._graph.edges, this._graph.loops, this._graph.isDigraph);
+    this._incidenceMatrix = this.graphCalcService.createIncidenceMatrix(this._graph);
   }
 
   private updateAdjacencyLists() {
-    this._adjacencyLists = this.graphCalcService.createAdjacencyLists(this._graph.vertices, this._graph.edges, this._graph.loops, this._graph.isDigraph);
+    this._adjacencyLists = this.graphCalcService.createAdjacencyLists(this._graph);
   }
 
   handleBoardEvent(e: any, mode: number) {
@@ -49,11 +49,35 @@ export class GraphService {
             this.onClickBoardMode_0(e);
           else if (e.type === 'dblclick')
             this.onDblclickBoardMode_0(e);
-          else if (e.type === 'mousemove')
+          else if (e.type === 'mousemove') {
+            this.setDraggableVertexNull();
             this.onMouseMoveMode_0(e);
+          }
           else if (e.type === 'mouseup')
             this.onMouseUpBoard(e);
-            break;
+          break;
+        case 1:
+          if (e.type === 'mousemove') {
+            this._cLine = null;
+            this.moveDraggableVertex(e);
+          }
+          else if (e.type === 'mouseup')
+            this.setDraggableVertexNull();
+          break;
+        case 2:
+          if (e.type === 'mousemove') {
+            this._cLine = null;
+            this.moveGraph(e);
+          } else if (e.type === 'mouseup')
+            this.setDraggableVertexNull();
+          break;
+        case 3:
+          if (e.type === 'mousemove') {
+            this._cLine = null;
+            this.moveConnectedComponent(e);
+          } else if (e.type === 'mouseup')
+            this.setDraggableVertexNull();
+          break;
       }
     }
   }
@@ -69,6 +93,18 @@ export class GraphService {
           this.onMouseDownVertexMode_0(id);
         else if (e.type === 'mouseup')
           this.onMouseUpVertexMode_0(id);
+        break;
+      case 1:
+        if (e.type === 'mousedown')
+          this.onMouseDownVertexMode_1(id);
+        break;
+      case 2:
+        if (e.type === 'mousedown')
+          this.onMouseDownVertexMode_2(id);
+        break;
+      case 3:
+        if (e.type === 'mousedown')
+          this.onMouseDownVertexMode_3(id);
         break;
     }
   }
@@ -244,13 +280,17 @@ export class GraphService {
         } else {
           if (!(this._graph.getEdgeByVerticesIds(this._edgeStartVertex.id, vertex.id)
                 || this._graph.getEdgeByVerticesIds(vertex.id, this._edgeStartVertex.id))) {
-            const id = this._graph.edges.length ?  this._graph.edges.length : 0;
-            const edge = new Edge(id, this._edgeStartVertex.id, vertex.id, this._edgeStartVertex.cx, this._edgeStartVertex.cy, vertex.cx, vertex.cy);
-            this._graph.edges.push(edge);
+            this.addNewEdge(this._edgeStartVertex, vertex);
           }
         }
       }
     }
+  }
+
+  private addNewEdge(v1: Vertex, v2: Vertex) {
+    const id = this._graph.edges.length ?  this._graph.edges.length : 0;
+    const edge = new Edge(id, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy);
+    this._graph.edges.push(edge);
   }
 
   // move connecting line
@@ -280,6 +320,80 @@ export class GraphService {
         this._graph.deleteLoopById(e.id);
     });
     this._selectedElements = [];
+  }
+
+  private setDraggableVertex(id: number) {
+    this._selectedDraggableVertex = this._graph.getVertexById(id);
+  }
+
+  private setDraggableVertexNull() {
+    this._selectedDraggableVertex = null;
+  }
+
+  private moveDraggableVertex(e: MouseEvent) {
+    if (this._selectedDraggableVertex) {
+      const { x, y } = this.svgGraphicsService.parsePoint(e);
+      this._selectedDraggableVertex.cx = x;
+      this._selectedDraggableVertex.cy = y;
+      this._graph.updateEdgesCoords(this._selectedDraggableVertex);
+      this._graph.updateLoopsCoords(this._selectedDraggableVertex);
+    }
+  }
+
+  private onMouseDownVertexMode_1(id) {
+    this.setDraggableVertex(id);
+  }
+
+  private onMouseDownVertexMode_2(id) {
+    this.setDraggableVertex(id);
+  }
+
+  private onMouseDownVertexMode_3(id) {
+    this.setDraggableVertex(id);
+  }
+
+  private moveGraph(e: MouseEvent) {
+    if (this._selectedDraggableVertex) {
+      const { x, y } = this.svgGraphicsService.parsePoint(e);
+      const dx = x - this._selectedDraggableVertex.cx;
+      const dy = y - this._selectedDraggableVertex.cy;
+
+      this._selectedDraggableVertex.cx = x;
+      this._selectedDraggableVertex.cy = y;
+
+      this._graph.vertices.forEach(v => {
+        if (v !== this._selectedDraggableVertex) {
+          v.cx += dx;
+          v.cy += dy;
+        }
+        this._graph.updateEdgesCoords(v);
+        this._graph.updateLoopsCoords(v);
+      });
+    }
+  }
+
+  private moveConnectedComponent(e) {
+    const cComponentsArray: number[] = this.graphCalcService.calcConnectedComponents(this._graph);
+    if (this._selectedDraggableVertex) {
+      const dVertexComponentNumber = cComponentsArray[this._selectedDraggableVertex.id];
+      const { x, y } = this.svgGraphicsService.parsePoint(e);
+      const dx = x - this._selectedDraggableVertex.cx;
+      const dy = y - this._selectedDraggableVertex.cy;
+
+      this._selectedDraggableVertex.cx = x;
+      this._selectedDraggableVertex.cy = y;
+
+      this._graph.vertices.forEach(v => {
+        if (v != this._selectedDraggableVertex) {
+          if (cComponentsArray[v.id] === dVertexComponentNumber) {
+            v.cx += dx;
+            v.cy += dy;
+          }
+        }
+        this._graph.updateEdgesCoords(v);
+        this._graph.updateLoopsCoords(v);
+      });
+    }
   }
 
   // Getters
@@ -341,10 +455,6 @@ export class GraphService {
   // private _pathEndVertex: Vertex;
 
   // private _bfsTreeRoot: Vertex;
-  
-  // constructor(
-  //   private svgGraphicsService: SvgGraphicsService
-  // ) { }
 
   // initNewGraph() {
   //   const savedGraphs = JSON.parse(localStorage.getItem('graphs')) || [];
@@ -370,65 +480,6 @@ export class GraphService {
   //   this._pathStartVertex = null;
   //   this._pathEndVertex = null;
   //   this._bfsTreeRoot = null;
-  // }
-
-  // removeSelectedElements() {
-  //   if (this._selectedElement) {
-  //     if (this.isSelectedElementVertex) {
-  //       this.deleteEdgesConnectedToVertex(this._selectedElement.id);         
-  //       this.deleteVertex(this._selectedElement.id);            
-  //       this._selectedElement.setDisabled();
-  //       this._selectedElement = null;
-  //     } else if (this.isSelectedElementEdge) {
-  //       this.deleteEdge(this._selectedElement.id);
-  //       this._selectedElement.setDisabled();
-  //       this._selectedElement = null;
-  //     }
-  //   }
-  // }
-
-  // addNewVertex(e: MouseEvent) {
-  //   if (e.target instanceof SVGSVGElement) {
-  //     const { x, y } = this.svgGraphicsService.parsePoint(e);
-  //     const newVertexId = this._vertices.length ?  this._vertices.length : 0;
-  //     const vertex = new Vertex(newVertexId, x, y, 15);
-  //     this.addVertex(vertex);
-  //   }
-  // }
-
-  // addNewEdge(v1: Vertex, v2: Vertex) {
-  //   if (!this.edgeExists(v1.id, v2.id)) {
-  //     const newEdgeId = this._edges.length ? this._edges.length : 0;
-  //     const edge = new Edge(newEdgeId, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy);
-  //     this.addEdge(edge);
-  //   }
-  // }
-
-  // onClickVertexMode_1(id: number) {
-  //   this.setNullPathvertices();
-  //   const vertex = this.getVertexById(id);
-  //   if (this.isSelectedElementVertex) {
-  //     if (this._selectedElement === vertex) {
-  //       this._selectedElement.setDisabled();
-  //       this.setAllConnectedEdgesUnhighlighted(this._selectedElement);
-  //       this._selectedElement = null;
-  //     } else {
-  //       this.addNewEdge(this._selectedElement, vertex);
-  //       this._selectedElement.setDisabled();
-  //       this.setAllConnectedEdgesUnhighlighted(this._selectedElement);
-  //       this._selectedElement = null;
-  //     }
-  //   } else if (this.isSelectedElementEdge) {
-  //     this._selectedElement.setDisabled();
-  //     this._selectedElement = vertex;
-  //     this._selectedElement.setActive();
-  //     this.setAllConnectedEdgesHighlighted(this._selectedElement);
-  //   } else {
-  //     this.clearAllColors();
-  //     this._selectedElement = vertex;
-  //     this._selectedElement.setActive();
-  //     this.setAllConnectedEdgesHighlighted(this._selectedElement);
-  //   }
   // }
 
   // onClickVertexMode_3(id: number) {
@@ -522,79 +573,6 @@ export class GraphService {
   //   });
   // }
 
-  // onClickEdge(id: number) {
-  //   this.clearAllColors();
-  //   this.setNullPathvertices();
-  //   const edge = this.getEdgeById(id);
-  //   if (!this._selectedElement) {
-  //     this._selectedElement = edge;
-  //     this._selectedElement.setActive();
-  //   } else {
-  //     if (this.isSelectedElementEdge || this.isSelectedElementVertex) {
-  //       if (this._selectedElement === edge) {
-  //         this._selectedElement.setDisabled();
-  //         this._selectedElement = null;
-  //       } else {
-  //         this._selectedElement.setDisabled();
-  //         this.setAllConnectedEdgesUnhighlighted(this._selectedElement);
-  //         this._selectedElement = edge;
-  //         this._selectedElement.setActive();
-  //       }
-  //     }
-  //   }
-  // }
-
-  // addVertex(vertex: Vertex) {
-  //   this._vertices.push(vertex);
-  // }
-
-  // deleteVertex(id: number) {
-  //   this._vertices = this._vertices.filter(v => v.id !== id);
-  //   this.updateverticesIds();
-  // }
-
-  // deleteEdge(id: number) {
-  //   this._edges = this._edges.filter(e => e.id !== id);
-  //   this.updateEdgesIds();
-  // }
-
-  // deleteEdgesConnectedToVertex(id: number) {
-  //   this._edges.forEach(e => {
-  //     if (e.v1 === id || e.v2 === id) {
-  //       this.deleteEdge(e.id);
-  //     }
-  //   });
-  // }
-
-  // deleteVertexWoutEdges() {
-  //   let hasEdges;  
-  //   this._vertices.forEach(v => {
-  //     hasEdges = false;
-  //     this._edges.forEach(e => {
-  //       if (v.id === e.v1 || v.id === e.v2) {
-  //         hasEdges = true;
-  //       }
-  //     });
-  //     if (!hasEdges) {
-  //       this.deleteVertex(v.id);
-  //     }
-  //   });
-  // }
-
-  // addEdge(edge: Edge) {
-  //   this._edges.push(edge);
-  // }
-
-  // edgeExists(v1: number, v2: number): boolean {
-  //   let result: boolean = false;
-  //   this._edges.forEach(e => {
-  //     if ((e.v1 === v1 && e.v2 === v2) || (e.v1 === v2 && e.v2 === v1)) {
-  //       result = true;
-  //     }
-  //   });
-  //   return result;
-  // }
-
   // lineGraphEdgeExists(v1: number, v2: number): boolean {
   //   let result: boolean = false;
   //   this._lineGraphEdges.forEach(e => {
@@ -603,186 +581,6 @@ export class GraphService {
   //     }
   //   });
   //   return result;
-  // }
-
-  // getVertexById(id: number): Vertex {
-  //   let vertex = null;
-  //   this._vertices.forEach(v => {
-  //     if (v.id === id) {
-  //       vertex = v;
-  //     }
-  //   });
-  //   return vertex;
-  // }
-
-  // getEdgeById(id: number): Edge {
-  //   let edge = null;
-  //   this.edges.forEach(e => {
-  //     if (e.id === id) {
-  //       edge = e;
-  //     }
-  //   });
-  //   return edge;
-  // }
-
-  // setDraggedVertex(id: number) {
-  //   this._selectedDraggedVertex = this.getVertexById(id);
-  // }
-
-  // setDraggedVertexNull() {
-  //   this._selectedDraggedVertex = null;
-  // }
-
-  // moveDraggedVertex(e: MouseEvent) {
-  //   if (this._selectedDraggedVertex) {
-  //     const { x, y } = this.svgGraphicsService.parsePoint(e);
-  //     this._selectedDraggedVertex.cx = x;
-  //     this._selectedDraggedVertex.cy = y;
-  //     this.updateEdgesCoords(this._selectedDraggedVertex);
-  //   }
-  // }
-
-  // moveGraph(e: MouseEvent) {
-  //   if (this._selectedDraggedVertex) {
-  //     const { x, y } = this.svgGraphicsService.parsePoint(e);
-  //     const dx = x - this._selectedDraggedVertex.cx;
-  //     const dy = y - this._selectedDraggedVertex.cy;
-
-  //     this._selectedDraggedVertex.cx = x;
-  //     this._selectedDraggedVertex.cy = y;
-
-  //     this._vertices.forEach(v => {
-  //       if (v !== this._selectedDraggedVertex) {
-  //         v.cx += dx;
-  //         v.cy += dy;
-  //       }
-  //       this.updateEdgesCoords(v);
-  //     });
-  //   }
-  // }
-
-  // moveConnectedComponent(e) {
-  //   const cComponentsArray: number[] = this.calcConnectedComponents();
-  //   if (this._selectedDraggedVertex) {
-  //     const dVertexComponentNumber = cComponentsArray[this._selectedDraggedVertex.id];
-  //     const { x, y } = this.svgGraphicsService.parsePoint(e);
-  //     const dx = x - this._selectedDraggedVertex.cx;
-  //     const dy = y - this._selectedDraggedVertex.cy;
-
-  //     this._selectedDraggedVertex.cx = x;
-  //     this._selectedDraggedVertex.cy = y;
-
-  //     this._vertices.forEach(v => {
-  //       if (v != this._selectedDraggedVertex) {
-  //         if (cComponentsArray[v.id] === dVertexComponentNumber) {
-  //           v.cx += dx;
-  //           v.cy += dy;
-  //         }
-  //       }
-  //       this.updateEdgesCoords(v);
-  //     });
-  //   }
-  // }
-
-  // updateEdgesCoords(vertex: Vertex) {
-  //   this._edges.forEach(e => {
-  //     if (e.v1 === vertex.id) {
-  //       e.x1 = vertex.cx;
-  //       e.y1 = vertex.cy;
-  //     } else if (e.v2 === vertex.id) {
-  //       e.x2 = vertex.cx;
-  //       e.y2 = vertex.cy;
-  //     }
-  //   });
-  // }
-
-  // updateverticesIds() {
-  //   let id = 0;
-  //   this._vertices.forEach(v => {
-  //     this.updateEdgesVertexId(v.id, id);
-  //     v.id = id++;
-  //   });
-  // }
-
-  // updateEdgesIds() {
-  //   let id = 0;
-  //   this._edges.forEach(e => {
-  //     e.id = id++;
-  //   });
-  // }
-
-  // updateEdgesVertexId(oldId: number, newId: number) {
-  //   this._edges.forEach(e => {
-  //     if (e.v1 === oldId) {
-  //       e.v1 = newId;
-  //     } else if (e.v2 === oldId) {
-  //       e.v2 = newId;
-  //     }
-  //   });
-  // }
-
-  // createAdjacencyMatrix(vertices: Vertex[], edges: Edge[]) {
-  //   let aMatrix: number[][] = [];
-  //   for (let i = 0; i < vertices.length; i++) {
-  //     aMatrix[i] = [];
-  //     for (let j = 0; j < vertices.length; j++) {
-  //       aMatrix[i][j] = 0;
-  //     }
-  //   }
-  //   for (let i = 0; i < vertices.length; i++) {
-  //     for (let j = 0; j < vertices.length; j++) {
-  //       edges.forEach(e => {
-  //         if ((e.v1 === i && e.v2 === j) || (e.v1 === j && e.v2 === i)) {
-  //           aMatrix[i][j] = 1;
-  //         }
-  //       });
-  //     }
-  //   }
-  //   return aMatrix;
-  // }
-
-  // updateAdjacencyMatrix() {
-  //   this._adjacencyMatrix = this.createAdjacencyMatrix(this._vertices, this._edges);
-  // }
-
-  // createIncidenceMatrix(vertices: Vertex[], edges: Edge[]) {
-  //   let iMatrix: number[][] = [];
-  //   for (let i = 0; i < vertices.length; i++) {
-  //     iMatrix[i] = [];
-  //     for (let j = 0; j < edges.length; j++) {
-  //       iMatrix[i][j] = 0;
-  //     }
-  //   }
-  //   for (let i = 0; i < vertices.length; i++) {
-  //     for (let j = 0; j < edges.length; j++) {
-  //       if (edges[j].v1 === i || edges[j].v2 === i) {
-  //         iMatrix[i][j] = 1;
-  //       }
-  //     }
-  //   }
-  //   return iMatrix;
-  // }
-
-  // updateIncidenceMatrix() {
-  //   this._incidenceMatrix = this.createIncidenceMatrix(this._vertices, this._edges);
-  // }
-
-  // createAdjacencyLists(vertices: Vertex[], edges: Edge[]) {
-  //   let aLists: number[][] = [];
-  //   for (let i = 0; i < vertices.length; i++) {
-  //     aLists[i] = [];
-  //     for (let j = 0; j < edges.length; j++) {
-  //       if (edges[j].v1 === i)
-  //         aLists[i].push(edges[j].v2);
-  //       else if (edges[j].v2 === i)
-  //         aLists[i].push(edges[j].v1);
-  //     }
-  //   }
-  //   return aLists;
-  // }
-
-  // updateAdjacencyLists() {
-  //   this._adjacencyLists = this.createAdjacencyLists(this._vertices, this._edges);
   // }
 
   // createLineGraph() {
@@ -824,25 +622,6 @@ export class GraphService {
   //   this.initNewGraph();
   //   this._vertices = this._lineGraphvertices;
   //   this._edges = this._lineGraphEdges;
-  // }
-
-  // getEdgeIdByverticesIds(v1_id: number, v2_id: number): number {
-  //   let result: number = null;
-  //   this._edges.forEach(e => {
-  //     if ((e.v1 === v1_id && e.v2 === v2_id || e.v1 === v2_id && e.v2 === v1_id)) {
-  //       result = e.id;
-  //     }
-  //   });
-  //   return result;
-  // }
-
-  // getAllConnectedEdgesByVertexId(v_id: number): Edge[] {
-  //   let connectedEdges: Edge[] = [];
-  //   this._edges.forEach(e => {
-  //     if (e.v1 === v_id || e.v2 === v_id)
-  //       connectedEdges.push(e);
-  //   });
-  //   return connectedEdges;
   // }
 
   // calcGraphDegree(): number {
@@ -939,36 +718,6 @@ export class GraphService {
   //   if (countVisited === this._vertices.length)
   //     return true;
   //   return false;
-  // }
-
-  // calcConnectedComponents(): number[] {
-  //   this.updateAdjacencyMatrix();
-  //   let C: number[] = new Array(this._vertices.length);
-  //   let verticesStack: number[] = [];
-  //   let cComponentsCounter = 0;
-  //   C.fill(0, 0, C.length);
-  //   for (let i = 0; i < this._vertices.length; i++) {
-  //     if (C[i] > 0)
-  //       continue;
-  //     cComponentsCounter++;
-  //     verticesStack.push(i);
-  //     C[i] = cComponentsCounter;
-  //     while (verticesStack.length > 0) {
-  //       let v = verticesStack[verticesStack.length - 1];
-  //       verticesStack.pop()
-  //       for (let u = 0; u < this._vertices.length; u++) {
-  //           if (u === v)
-  //             continue;
-  //           if (this._adjacencyMatrix[v][u] === 1) {
-  //             if (C[u] > 0)
-  //               continue;
-  //             verticesStack.push(u);
-  //             C[u] = cComponentsCounter;
-  //           }
-  //       }
-  //     }
-  //   }
-  //   return C;
   // }
 
   // private getRandomColor(): string {

@@ -144,27 +144,11 @@ export class GraphsBoardComponent implements OnInit {
       case 'd':
         this.graphService.deleteSelectedElements();
         break;
+      case 'm':
+       
+        break;
     }
   }
-
-  // graph: Graph;
-  // vertices: Vertex[] = [];
-  // edges: Edge[] = [];
-  // graphOrder: number = 0;
-  // graphSize: number = 0;
-  // graphDegree: number = 0;
-
-  // initNewGraphView() {
-  //   this.graphService.initNewGraph();
-  //   this.updateGraphView();
-  // }
-
-  // updateGraphView() {
-  //   this.graph = this.graphService.graph;
-  //   this.vertices = this.graphService.vertices;
-  //   this.edges = this.graphService.edges;
-  //   this.updateGraphInfoView();
-  // }
 
   // updateGraphInfoView() {
   //   this.graphOrder = this.vertices.length;
@@ -183,14 +167,6 @@ export class GraphsBoardComponent implements OnInit {
   //   this.updateGraphView();
   // }
 
-  // // Events
-  // drawNewVertex(e: MouseEvent) {
-  //   if (this.mode === 0) {
-  //     this.graphService.addNewVertex(e);
-  //     this.updateGraphView();
-  //   }
-  // }
-
   // onClickVertex(id: number) {
   //   switch (this.mode) {
   //     case 0:
@@ -203,13 +179,6 @@ export class GraphsBoardComponent implements OnInit {
   //     case 5:
   //       this.graphService.onClickVertexMode_5(id);
   //       break;
-  //   }
-  // }
-
-  // onClickEdge(id: number) {
-  //   if (this.mode === 0) {
-  //     this.graphService.onClickEdge(id);
-  //     this.updateGraphView();
   //   }
   // }
 

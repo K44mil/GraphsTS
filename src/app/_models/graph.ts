@@ -103,6 +103,7 @@ export class Graph {
             result = filterResult[0];
         this._vertices = this._vertices.filter(v => v.id !== id);
         this.deleteEdgesConnectedToVertex(result.id);
+        this.deleteLoopsConnectedToVertex(result.id);
         this.updateVerticesIds();
         return result;
     }
@@ -127,12 +128,48 @@ export class Graph {
         return result;
     }
 
+    updateEdgesCoords(vertex: Vertex) {
+    this._edges.forEach(e => {
+        if (e.v1 === vertex.id) {
+            e.x1 = vertex.cx;
+            e.y1 = vertex.cy;
+        } else if (e.v2 === vertex.id) {
+            e.x2 = vertex.cx;
+            e.y2 = vertex.cy;
+        }
+        });
+    }
+
+    updateLoopsCoords(vertex: Vertex) {
+        this._loops.forEach(l => {
+            if (l.v === vertex.id) {
+                l.cx = vertex.cx + vertex.r;
+                l.cy = vertex.cy + vertex.r;
+            }
+        });
+    }
+
+    edgeExists(v1: number, v2: number): boolean {
+        let result: boolean = false;
+        this._edges.forEach(e => {
+            if (e.v1 === v1 && e.v2 === v2) {
+                result = true;
+            }
+        });
+        return result;
+    }
+
     // Private Methods
     private deleteEdgesConnectedToVertex(id: number): Edge[] {
         let result: Edge[] = this.getEdgesByVertexId(id);
         result.forEach(e => {
             this.deleteEdgeById(e.id);
         });
+        return result;
+    }
+    private deleteLoopsConnectedToVertex(id: number): Loop {
+        let result: Loop = this.getLoopByVertexId(id);
+        this.deleteLoopById(result.id);
         return result;
     }
 

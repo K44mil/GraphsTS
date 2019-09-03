@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Vertex, Edge, Loop } from '../_models';
+import { Vertex, Edge, Loop, Graph } from '../_models';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +8,9 @@ export class GraphCalcService {
 
   constructor() { }
 
-  createAdjacencyMatrix(vertices: Vertex[], edges: Edge[], loops: Loop[], isDirected: boolean): number[][] {
+  createAdjacencyMatrix(graph: Graph): number[][] {
     let aMatrix: number[][] = [];
+    const { vertices, edges, loops, isDigraph } = graph;
     for (let i = 0; i < vertices.length; i++) {
       aMatrix[i] = new Array(vertices.length);
       aMatrix[i].fill(0, 0, vertices.length);
@@ -17,17 +18,18 @@ export class GraphCalcService {
     for (let i = 0; i < vertices.length; i++) {
       for (let j = 0; j < vertices.length; j++) {
         edges.forEach(e => {
-          if (isDirected)
+          if (isDigraph) {
             if (e.v1 === i && e.v2 === j)
               aMatrix[i][j] = e.factor;
-          else 
+          } else {
             if ((e.v1 === i && e.v2 === j) || (e.v1 === j && e.v2 === i))
               aMatrix[i][j] = e.factor;  
+          } 
         });
       }
       loops.forEach(l => {
         if (l.v === i)
-          if (isDirected)
+          if (isDigraph)
             aMatrix[i][i] = 1;
           else
             aMatrix[i][i] = 2;
@@ -36,8 +38,9 @@ export class GraphCalcService {
     return aMatrix;
   }
 
-  createIncidenceMatrix(vertices: Vertex[], edges: Edge[], loops: Loop[], isDirected: boolean): number[][] {
+  createIncidenceMatrix(graph: Graph): number[][] {
     let iMatrix: number[][] = [];
+    const { vertices, edges, loops, isDigraph } = graph;
     for (let i = 0; i < vertices.length; i++) {
       iMatrix[i] = [];
       for (let j = 0; j < edges.length + loops.length; j++) {
@@ -46,7 +49,7 @@ export class GraphCalcService {
     }
     for (let i = 0; i < vertices.length; i++) {
       for (let j = 0; j < edges.length; j++) {
-        if (isDirected)
+        if (isDigraph)
           if (edges[j].v1 === i)
             iMatrix[i][j] = 1;
           else if (edges[j].v2 === i)
@@ -63,12 +66,13 @@ export class GraphCalcService {
     return iMatrix;
   }
 
-  createAdjacencyLists(vertices: Vertex[], edges: Edge[], loops: Loop[], isDirected: boolean): number[][] {
+  createAdjacencyLists(graph: Graph): number[][] {
     let aLists: number[][] = [];
+    const { vertices, edges, loops, isDigraph } = graph;
     for (let i = 0; i < vertices.length; i++) {
       aLists[i] = [];
       for (let j = 0; j < edges.length; j++) {
-        if (isDirected)
+        if (isDigraph)
           if (edges[j].v1 === i)
             aLists[i].push(edges[j].v2);
         else
@@ -83,6 +87,37 @@ export class GraphCalcService {
       }
     }
     return aLists;
+  }
+
+  calcConnectedComponents(graph: Graph): number[] {
+    const aMatrix = this.createAdjacencyMatrix(graph);
+    const { vertices } = graph;
+    let C: number[] = new Array(vertices.length);
+    let verticesStack: number[] = [];
+    let cComponentsCounter = 0;
+    C.fill(0, 0, C.length);
+    for (let i = 0; i < vertices.length; i++) {
+      if (C[i] > 0)
+        continue;
+      cComponentsCounter++;
+      verticesStack.push(i);
+      C[i] = cComponentsCounter;
+      while (verticesStack.length > 0) {
+        let v = verticesStack[verticesStack.length - 1];
+        verticesStack.pop()
+        for (let u = 0; u < vertices.length; u++) {
+            if (u === v)
+              continue;
+            if (aMatrix[v][u] === 1) {
+              if (C[u] > 0)
+                continue;
+              verticesStack.push(u);
+              C[u] = cComponentsCounter;
+            }
+        }
+      }
+    }
+    return C;
   }
 
 }
