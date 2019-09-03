@@ -7,7 +7,8 @@
             height="800"
             viewBox="0 0 1000 800"
             (click)="onClickBoard($event)"
-            (onmouseup)="onMouseUpBoard($event)"
+            (dblclick)="onDblclickBoard($event)"
+            (mouseup)="onMouseUpBoard($event)"
             (mousemove)="onMouseMove($event)"
             (wheel)="onWheelBoard($event)">
 
@@ -30,7 +31,8 @@
             [attr.r]="loop.r"
             [attr.fill]="loop.fill"
             [attr.stroke]="loop.stroke"
-            [attr.stroke-width]="loop.strokeWidth">
+            [attr.stroke-width]="loop.strokeWidth"
+            (click)="onClickLoop(loop.id)">
                 <title>
                     {{ loop.id }}
                 </title>
@@ -59,7 +61,9 @@
             [attr.stroke]="vertex.stroke"
             [attr.stroke-width]="vertex.strokeWidth"
             (click)="onClickVertex($event, vertex.id)"
-            (dblclick)="onDblclickVertex($event, vertex.id)">
+            (dblclick)="onDblclickVertex($event, vertex.id)"
+            (mousedown)="onMouseDownVertex($event, vertex.id)"
+            (mouseup)="onMouseUpVertex($event, vertex.id)">
                 <title>
                     {{ vertex.id }}
                 </title>

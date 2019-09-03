@@ -25,6 +25,10 @@ export class GraphService {
     private svgGraphicsService: SvgGraphicsService
   ) { }
 
+  initNewGraph() {
+    this._graph = new Graph(0);
+  }
+
   private updateAdjacencyMatrix() {
     this._adjacencyMatrix = this.graphCalcService.createAdjacencyMatrix(this._graph.vertices, this._graph.edges, this._graph.loops, this._graph.isDigraph);
   }
@@ -41,8 +45,15 @@ export class GraphService {
     if (e instanceof MouseEvent) {
       switch (mode) {
         case 0:
-          this.onClickBoardMode_0(e);
-          break;
+          if (e.type === 'click')
+            this.onClickBoardMode_0(e);
+          else if (e.type === 'dblclick')
+            this.onDblclickBoardMode_0(e);
+          else if (e.type === 'mousemove')
+            this.onMouseMoveMode_0(e);
+          else if (e.type === 'mouseup')
+            this.onMouseUpBoard(e);
+            break;
       }
     }
   }
@@ -56,6 +67,8 @@ export class GraphService {
           this.onDblclickVertexMode_0(id);
         else if (e.type === 'mousedown')
           this.onMouseDownVertexMode_0(id);
+        else if (e.type === 'mouseup')
+          this.onMouseUpVertexMode_0(id);
         break;
     }
   }
@@ -90,28 +103,32 @@ export class GraphService {
   // Events
   // Create new vertex or unselect current selected elements if selected
   private onClickBoardMode_0(e: MouseEvent) {
-    if (e.target instanceof SVGSVGElement) {
-      if (this._selectedElements !== []) {
+    if (e.target instanceof SVGSVGElement)
+      if (this._selectedElements.length > 0)
         this.unselectAllElements();
-      } else {
-        const { x, y } = this.svgGraphicsService.parsePoint(e);
-        const id = this._graph.vertices.length ?  this._graph.vertices.length : 0;
-        const vertex = new Vertex(id, x, y, 15);
-        this._graph.vertices.push(vertex);
-      }
-    }
   }
 
   // Select vertex and unselect current selected elements
   private onClickVertexMode_0(id: number) {
     const vertex = this._graph.getVertexById(id);
     if (this.isOnlyOneSelectedElement) {
-      if (this.isFirstSelectedElementVertex)
+      if (this.isFirstSelectedElementVertex) {
         if (this.firstSelectedElement.id === vertex.id) {
           this.firstSelectedElement.setDisabled();
           this._selectedElements = [];
+        } else {
+          this.firstSelectedElement.setDisabled();
+          this._selectedElements.pop();
+          vertex.setActive();
+          this._selectedElements.push(vertex);
         }
-    } else if (this._selectedElements !== []) {
+      } else {
+        this.firstSelectedElement.setDisabled();
+        this._selectedElements.pop();
+        vertex.setActive();
+        this._selectedElements.push(vertex);
+      }
+    } else if (this._selectedElements.length > 0) {
       this.unselectAllElements();
       vertex.setActive();
       this._selectedElements.push(vertex);
@@ -125,12 +142,23 @@ export class GraphService {
   private onClickEdgeMode_0(id: number) {
     const edge = this._graph.getEdgeById(id);
     if (this.isOnlyOneSelectedElement) {
-      if (this.isFirsSelectedElementEdge)
+      if (this.isFirsSelectedElementEdge) {
         if (this.firstSelectedElement.id === edge.id) {
           this.firstSelectedElement.setDisabled();
           this._selectedElements = [];
+        } else {
+          this.firstSelectedElement.setDisabled();
+          this._selectedElements.pop();
+          edge.setActive();
+          this._selectedElements.push(edge);
         }
-    } else if (this._selectedElements !== []) {
+      } else {
+        this.firstSelectedElement.setDisabled();
+        this._selectedElements.pop();
+        edge.setActive();
+        this._selectedElements.push(edge);
+      }
+    } else if (this._selectedElements.length > 0) {
       this.unselectAllElements();
       edge.setActive();
       this._selectedElements.push(edge);
@@ -142,14 +170,26 @@ export class GraphService {
 
   // Select loop and unselect current selected elements
   private onClickLoopMode_0(id: number) {
+    console.log('loop');
     const loop = this._graph.getLoopById(id);
     if (this.isOnlyOneSelectedElement) {
-      if (this.isFirsSelectedElementLoop)
+      if (this.isFirsSelectedElementLoop) {
         if (this.firstSelectedElement.id === loop.id) {
           this.firstSelectedElement.setDisabled();
           this._selectedElements = [];
+        } else {
+          this.firstSelectedElement.setDisabled();
+          this._selectedElements.pop();
+          loop.setActive();
+          this._selectedElements.push(loop);
         }
-    } else if (this._selectedElements !== []) {
+      } else {
+        this.firstSelectedElement.setDisabled();
+        this._selectedElements.pop();
+        loop.setActive();
+        this._selectedElements.push(loop);
+      }
+    } else if (this._selectedElements.length > 0) {
       this.unselectAllElements();
       loop.setActive();
       this._selectedElements.push(loop);
@@ -166,6 +206,16 @@ export class GraphService {
       const loopId = this._graph.loops.length ? this._graph.loops.length : 0;
       const loop = new Loop(loopId, id, v.cx + v.r, v.cy + v.r, v.r);
       this._graph.loops.push(loop); 
+    }
+  }
+
+  // create new vertex
+  onDblclickBoardMode_0(e) {
+    if (e.target instanceof SVGSVGElement) {
+      const { x, y } = this.svgGraphicsService.parsePoint(e);
+      const id = this._graph.vertices.length ?  this._graph.vertices.length : 0;
+      const vertex = new Vertex(id, x, y, 15);
+      this._graph.vertices.push(vertex);
     }
   }
 
@@ -190,14 +240,36 @@ export class GraphService {
         this._cLine = null;
         this._edgeStartVertex = null;
       } else {
-        if (!this._graph.getEdgeByVerticesIds(this._edgeStartVertex.id, vertex.id)) {
+        if (this._graph.isDigraph) {
           // TODO
+        } else {
+          if (!(this._graph.getEdgeByVerticesIds(this._edgeStartVertex.id, vertex.id)
+                || this._graph.getEdgeByVerticesIds(vertex.id, this._edgeStartVertex.id))) {
+            const id = this._graph.edges.length ?  this._graph.edges.length : 0;
+            const edge = new Edge(id, this._edgeStartVertex.id, vertex.id, this._edgeStartVertex.cx, this._edgeStartVertex.cy, vertex.cx, vertex.cy);
+            this._graph.edges.push(edge);
+          }
         }
       }
     }
   }
 
+  // move connecting line
+  onMouseMoveMode_0(e) {
+    if (this._cLine) {
+      const { x, y } = this.svgGraphicsService.parsePoint(e);
+      this._cLine.x2 = x;
+      this._cLine.y2 = y;
+    }
+  }
 
+  // delete connecting line
+  onMouseUpBoard(e) {
+    if (this._cLine) {
+      this._cLine = null;
+      this._edgeStartVertex = null;
+    } 
+  }
 
   // Getters
   get graph(): Graph {

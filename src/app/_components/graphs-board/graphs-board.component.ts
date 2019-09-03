@@ -32,6 +32,7 @@ export class GraphsBoardComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.graphService.initNewGraph();
     this.updateGraphView();
     this._mode = 0; 
   }
@@ -45,61 +46,71 @@ export class GraphsBoardComponent implements OnInit {
   onClickBoard(e: MouseEvent) {
     this.graphService.handleBoardEvent(e, this._mode);
     this.updateGraphView();
+    this.sleep(10);
   }
 
   onClickVertex(e: MouseEvent, id: number) {
     this.graphService.handleVertexEvent(e, id, this._mode);
     this.updateGraphView();
+    this.sleep(10);
   }
 
   onClickEdge(id: number) {
     this.graphService.handleEdgeEvent(id, this._mode);
     this.updateGraphView();
+    this.sleep(10);
   }
 
   onClickLoop(id: number) {
     this.graphService.handleLoopEvent(id, this._mode);
     this.updateGraphView();
+    this.sleep(10);
   }
 
   onDblclickVertex(e: MouseEvent, id: number) {
     this.graphService.handleVertexEvent(e, id, this._mode);
+    this.updateGraphView();
+    this.sleep(10);
   }
 
-  onMouseDownVertex(id: number) {
-    switch (this._mode) {
-      case 0:
-        // onMouseDownVertexMode_0
-        break;
-    }
+  onDblclickBoard(e: MouseEvent) {
+    this.graphService.handleBoardEvent(e, this._mode);
+    this.updateGraphView();
+    this.sleep(10);
   }
 
-  onMouseUpVertex(id: number) {
-    switch (this._mode) {
-      case 0:
-        // onMouseUpVertexMode_0
-        break;
-    }
+  onMouseDownVertex(e: MouseEvent, id: number) {
+    this.graphService.handleVertexEvent(e, id, this._mode);
+    this.updateGraphView();
+    this.sleep(10);
+  }
+
+  onMouseUpVertex(e: MouseEvent, id: number) {
+    this.graphService.handleVertexEvent(e, id, this._mode);
+    this.updateGraphView();
+    this.sleep(10);
   }
 
   onMouseMove(e: MouseEvent) {
-    switch (this._mode) {
-      case 0:
-        // onMouseMoveMode_0
-        break;
-    }
+    this.graphService.handleBoardEvent(e, this._mode);
+    this.updateGraphView();
   }
 
   onMouseUpBoard(e: MouseEvent) {
-    switch (this._mode) {
-      case 0:
-        // onMouseUpBoardMode_0
-        break;
-    }
+    this.graphService.handleBoardEvent(e, this._mode);
+    this.updateGraphView();
   }
 
   onWheelBoard(e: MouseEvent) {
     console.log(e);
+  }
+
+  sleep(milliseconds: number) {
+    const start = new Date().getTime();
+    for (let i = 0; i < 1e7; i++) {
+      if ((new Date().getTime() - start) > milliseconds)
+        break;
+    }
   }
 
   // graph: Graph;
