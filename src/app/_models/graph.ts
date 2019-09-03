@@ -102,8 +102,8 @@ export class Graph {
         if (filterResult.length > 0)
             result = filterResult[0];
         this._vertices = this._vertices.filter(v => v.id !== id);
-        this.updateVerticesIds();
         this.deleteEdgesConnectedToVertex(result.id);
+        this.updateVerticesIds();
         return result;
     }
 

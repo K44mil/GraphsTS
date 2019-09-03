@@ -170,7 +170,6 @@ export class GraphService {
 
   // Select loop and unselect current selected elements
   private onClickLoopMode_0(id: number) {
-    console.log('loop');
     const loop = this._graph.getLoopById(id);
     if (this.isOnlyOneSelectedElement) {
       if (this.isFirsSelectedElementLoop) {
@@ -210,7 +209,7 @@ export class GraphService {
   }
 
   // create new vertex
-  onDblclickBoardMode_0(e) {
+  private onDblclickBoardMode_0(e) {
     if (e.target instanceof SVGSVGElement) {
       const { x, y } = this.svgGraphicsService.parsePoint(e);
       const id = this._graph.vertices.length ?  this._graph.vertices.length : 0;
@@ -255,7 +254,7 @@ export class GraphService {
   }
 
   // move connecting line
-  onMouseMoveMode_0(e) {
+  private onMouseMoveMode_0(e) {
     if (this._cLine) {
       const { x, y } = this.svgGraphicsService.parsePoint(e);
       this._cLine.x2 = x;
@@ -264,11 +263,23 @@ export class GraphService {
   }
 
   // delete connecting line
-  onMouseUpBoard(e) {
+  private onMouseUpBoard(e) {
     if (this._cLine) {
       this._cLine = null;
       this._edgeStartVertex = null;
     } 
+  }
+
+  deleteSelectedElements() {
+    this._selectedElements.forEach(e => {
+      if (e instanceof Edge)
+        this._graph.deleteEdgeById(e.id);
+      else if (e instanceof Vertex)
+        this._graph.deleteVertexById(e.id);
+      else if (e instanceof Loop)
+        this._graph.deleteLoopById(e.id);
+    });
+    this._selectedElements = [];
   }
 
   // Getters

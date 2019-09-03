@@ -1,6 +1,5 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, Host } from '@angular/core';
 import { GraphService } from '../../_services/graph.service';
-import { GraphEventHandlerService } from '../../_services/graph-event-handler.service';
 import { Graph } from '../../_models';
 import { Line } from '../../_models/_svgModels/line';
 
@@ -18,18 +17,15 @@ export class GraphsBoardComponent implements OnInit {
      * 0 - draw graph
      * 1 - stretch graph
      * 2 - move graph
-     * 3 - calculate any path
+     * 3 - move only single component
      * 4 - move only single component
      * 5 - spanning tree root select 
      */
   private _mode: number;
 
   constructor(
-    private graphService: GraphService,
-    private graphEventHandlerService: GraphEventHandlerService
-  ) {
-
-  }
+    private graphService: GraphService
+  ) { }
 
   ngOnInit() {
     this.graphService.initNewGraph();
@@ -46,49 +42,41 @@ export class GraphsBoardComponent implements OnInit {
   onClickBoard(e: MouseEvent) {
     this.graphService.handleBoardEvent(e, this._mode);
     this.updateGraphView();
-    this.sleep(10);
   }
 
   onClickVertex(e: MouseEvent, id: number) {
     this.graphService.handleVertexEvent(e, id, this._mode);
     this.updateGraphView();
-    this.sleep(10);
   }
 
   onClickEdge(id: number) {
     this.graphService.handleEdgeEvent(id, this._mode);
     this.updateGraphView();
-    this.sleep(10);
   }
 
   onClickLoop(id: number) {
     this.graphService.handleLoopEvent(id, this._mode);
     this.updateGraphView();
-    this.sleep(10);
   }
 
   onDblclickVertex(e: MouseEvent, id: number) {
     this.graphService.handleVertexEvent(e, id, this._mode);
     this.updateGraphView();
-    this.sleep(10);
   }
 
   onDblclickBoard(e: MouseEvent) {
     this.graphService.handleBoardEvent(e, this._mode);
     this.updateGraphView();
-    this.sleep(10);
   }
 
   onMouseDownVertex(e: MouseEvent, id: number) {
     this.graphService.handleVertexEvent(e, id, this._mode);
     this.updateGraphView();
-    this.sleep(10);
   }
 
   onMouseUpVertex(e: MouseEvent, id: number) {
     this.graphService.handleVertexEvent(e, id, this._mode);
     this.updateGraphView();
-    this.sleep(10);
   }
 
   onMouseMove(e: MouseEvent) {
@@ -102,13 +90,59 @@ export class GraphsBoardComponent implements OnInit {
   }
 
   onWheelBoard(e: MouseEvent) {
-    console.log(e);
+    // TODO
   }
 
-  sleep(milliseconds: number) {
-    const start = new Date().getTime();
-    for (let i = 0; i < 1e7; i++) {
-      if ((new Date().getTime() - start) > milliseconds)
+  logGraph() {
+      console.log('%cVERTICES: ', 'font-weight: 700; color: blue')
+      console.table(this.graph.vertices);
+      console.log('%cEDGES: ', 'font-weight: 700; color: green')
+      console.table(this.graph.edges);
+      console.log('%cLOOPS: ', 'font-weight: 700; color: red')
+      console.table(this.graph.loops);
+    }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(e: KeyboardEvent) {
+    switch (e.key) {
+      case 'q':
+        this._mode = 1;
+        break;
+      case 'w':
+        this._mode = 2;
+        break;
+      case 'e':
+        this._mode = 3;
+        break;
+    }
+  }
+
+  @HostListener('document:keyup', ['$event'])
+  onKeyUp(e: KeyboardEvent) {
+    switch (e.key) {
+      case 'q':
+        this._mode = 0;
+        break;
+      case 'w':
+        this._mode = 0;
+        break;
+      case 'e':
+        this._mode = 0;
+        break;
+      case 'p':
+        this.logGraph();
+        break;
+      case 'c':
+        console.clear();
+        break;
+    }
+  }
+
+  @HostListener('document:keypress', ['$event'])
+  onKeyPress(e: KeyboardEvent) {
+    switch(e.key) {
+      case 'd':
+        this.graphService.deleteSelectedElements();
         break;
     }
   }
@@ -291,6 +325,5 @@ export class GraphsBoardComponent implements OnInit {
   //       this.graphService.colorConnectedComponents(this.graphService.calcConnectedComponents());
   //       break;
   //   }
-  // }
 
-}
+  }
