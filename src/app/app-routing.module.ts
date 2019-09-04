@@ -4,7 +4,7 @@ import { GraphsBoardComponent } from './_components/graphs-board/graphs-board.co
 
 
 const routes: Routes = [
-  { path: 'graphs', component: GraphsBoardComponent }
+  { path: '', component: GraphsBoardComponent }
 ];
 
 @NgModule({

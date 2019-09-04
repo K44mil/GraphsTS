@@ -1,4 +1,4 @@
-import { Vertex, Edge, Loop } from './';
+import { Vertex, Edge, Loop, Arrow } from './';
 
 export class Graph {
 
@@ -6,6 +6,7 @@ export class Graph {
     private _vertices: Vertex[];
     private _edges: Edge[];
     private _loops: Loop[];
+    private _arrows: Arrow[];
     private _name: string;
     private _isDigraph: boolean;
     private _isSaved: boolean;
@@ -16,6 +17,7 @@ export class Graph {
         vertices: Vertex[] = [],
         edges: Edge[] = [],
         loops: Loop[] = [],
+        arrows: Arrow[] =[],
         name: string = '',
         isDigraph: boolean = false,
         isSaved: boolean = false
@@ -24,6 +26,7 @@ export class Graph {
         this._vertices = vertices;
         this._edges = edges;
         this._loops = loops;
+        this._arrows = arrows;
         this._name = name;
         this._isDigraph = isDigraph;
         this._isSaved = isSaved;
@@ -237,6 +240,14 @@ export class Graph {
 
     set loops(val: Loop[]) {
         this._loops = val;
+    }
+
+    get arrows(): Arrow[] {
+        return this._arrows;
+    }
+
+    set arrows(val: Arrow[]) {
+        this._arrows = val;
     }
 
     get name(): string {

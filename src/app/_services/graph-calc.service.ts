@@ -160,8 +160,8 @@ export class GraphCalcService {
         if (aMatrix[v][u] === 1) {
           if (visited[u] === true)
             continue;
-            visited[u] = true;
-            verticesStack.push(u);
+          visited[u] = true;
+          verticesStack.push(u);
         }
       }
     }

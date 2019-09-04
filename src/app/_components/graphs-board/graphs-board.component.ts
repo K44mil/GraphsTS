@@ -21,16 +21,27 @@ export class GraphsBoardComponent implements OnInit {
      * 4 - move only single component
      * 5 - spanning tree root select 
      */
-  private _mode: number;
+  isBoardActive = false;
+  mode: number = 0;
 
   constructor(
     private graphService: GraphService
   ) { }
 
   ngOnInit() {
+
+  }
+
+  initNewGraph() {
     this.graphService.initNewGraph();
     this.updateGraphView();
-    this._mode = 0; 
+    this.isBoardActive = true;
+  }
+
+  initNewDigraph() {
+    // TODO
+    this.updateGraphView();
+    this.isBoardActive = true;
   }
 
   updateGraphView() {
@@ -40,57 +51,81 @@ export class GraphsBoardComponent implements OnInit {
 
   // Events
   onClickBoard(e: MouseEvent) {
-    this.graphService.handleBoardEvent(e, this._mode);
-    this.updateGraphView();
+    if (this.isBoardActive) {
+      this.graphService.handleBoardEvent(e, this.mode);
+      this.updateGraphView();
+    }
   }
 
   onClickVertex(e: MouseEvent, id: number) {
-    this.graphService.handleVertexEvent(e, id, this._mode);
-    this.updateGraphView();
+    if (this.isBoardActive) {
+      this.graphService.handleVertexEvent(e, id, this.mode);
+      this.updateGraphView();
+    }
   }
 
   onClickEdge(id: number) {
-    this.graphService.handleEdgeEvent(id, this._mode);
-    this.updateGraphView();
+    if (this.isBoardActive) {
+      this.graphService.handleEdgeEvent(id, this.mode);
+      this.updateGraphView();
+    }
   }
 
   onClickLoop(id: number) {
-    this.graphService.handleLoopEvent(id, this._mode);
-    this.updateGraphView();
+    if (this.isBoardActive) {
+      this.graphService.handleLoopEvent(id, this.mode);
+      this.updateGraphView();
+    }
   }
 
   onDblclickVertex(e: MouseEvent, id: number) {
-    this.graphService.handleVertexEvent(e, id, this._mode);
-    this.updateGraphView();
+    if (this.isBoardActive) {
+      this.graphService.handleVertexEvent(e, id, this.mode);
+      this.updateGraphView();
+    }
   }
 
   onDblclickBoard(e: MouseEvent) {
-    this.graphService.handleBoardEvent(e, this._mode);
-    this.updateGraphView();
+    console.log('dblclick');
+    if (this.isBoardActive) {
+      console.log('dblclick active');
+      this.graphService.handleBoardEvent(e, this.mode);
+      this.updateGraphView();
+    }
   }
 
   onMouseDownVertex(e: MouseEvent, id: number) {
-    this.graphService.handleVertexEvent(e, id, this._mode);
-    this.updateGraphView();
+    if (this.isBoardActive) {
+      this.graphService.handleVertexEvent(e, id, this.mode);
+      this.updateGraphView();
+    }
   }
 
   onMouseUpVertex(e: MouseEvent, id: number) {
-    this.graphService.handleVertexEvent(e, id, this._mode);
-    this.updateGraphView();
+    if (this.isBoardActive) {
+      this.graphService.handleVertexEvent(e, id, this.mode);
+      this.updateGraphView();
+    }
   }
 
   onMouseMove(e: MouseEvent) {
-    this.graphService.handleBoardEvent(e, this._mode);
-    this.updateGraphView();
+    if (this.isBoardActive) {
+      this.graphService.handleBoardEvent(e, this.mode);
+      this.updateGraphView();
+    }
   }
 
   onMouseUpBoard(e: MouseEvent) {
-    this.graphService.handleBoardEvent(e, this._mode);
-    this.updateGraphView();
+    if (this.isBoardActive) {
+      this.graphService.handleBoardEvent(e, this.mode);
+      this.updateGraphView();
+    }
   }
 
   onWheelBoard(e: MouseEvent) {
-    // TODO
+    if (this.isBoardActive){
+      // TODO
+    }
   }
 
   logGraph() {
@@ -106,13 +141,13 @@ export class GraphsBoardComponent implements OnInit {
   onKeyDown(e: KeyboardEvent) {
     switch (e.key) {
       case 'q':
-        this._mode = 1;
+        this.mode = 1;
         break;
       case 'w':
-        this._mode = 2;
+        this.mode = 2;
         break;
       case 'e':
-        this._mode = 3;
+        this.mode = 3;
         break;
     }
   }
@@ -121,13 +156,13 @@ export class GraphsBoardComponent implements OnInit {
   onKeyUp(e: KeyboardEvent) {
     switch (e.key) {
       case 'q':
-        this._mode = 0;
+        this.mode = 0;
         break;
       case 'w':
-        this._mode = 0;
+        this.mode = 0;
         break;
       case 'e':
-        this._mode = 0;
+        this.mode = 0;
         break;
       case 'p':
         this.logGraph();
@@ -145,7 +180,7 @@ export class GraphsBoardComponent implements OnInit {
         this.graphService.deleteSelectedElements();
         break;
       case 'm':
-       
+        this.graphService.colorTree();
         break;
     }
   }

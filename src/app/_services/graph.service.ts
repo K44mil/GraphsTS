@@ -26,7 +26,11 @@ export class GraphService {
   ) { }
 
   initNewGraph() {
-    this._graph = new Graph(0);
+    this._graph = new Graph(0, new Array(0), new Array(0), new Array(0), new Array(0), '', false, false);
+  }
+
+  initNewDigraph() {
+    this._graph = new Graph(0, new Array(0), new Array(0), new Array(0), new Array(0), '', true, false);
   }
 
   private updateAdjacencyMatrix() {
@@ -421,6 +425,12 @@ export class GraphService {
       e.setDisabled();
     });
     this._selectedElements = [];
+  }
+
+  // TEST CODE
+  colorTree() {
+    this.graphDrawService.colorBredthFirstSpanningTree(this._graph, this._graph.vertices[0], 
+                                                      this.graphCalcService.calcBreadthFirstSpanningTree(this._graph, this._graph.vertices[0]));
   }
 
   // Getters

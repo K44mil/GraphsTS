@@ -1,79 +1,97 @@
 <div class="board">
+    <div class="row" style="margin-bottom: 5px;">
+        <div class="col-12 col-md-7">
+            <button class="btn btn-success" (click)="initNewGraph()">NEW GRAPH</button>
+            <button class="btn btn-info" style="margin-left: 5px;">NEW DIGRAPH</button>
+            <button class="btn btn-danger" style="margin-left: 5px; ">SAVE</button>
+        </div>     
+    </div>
     <div class="row">
-        <div class="col-12 col-md-8">
+        <div class="col-12 col-md-7">
+            <div class="alert alert-primary" role="alert">
+                    This is a primary alert—check it out!
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-7">
             <svg
             id="svgGraphsBoard"
-            width="1000"
-            height="800"
             viewBox="0 0 1000 800"
+            [ngClass]="isBoardActive ? 'svg-disabled' : 'svg-active' "
             (click)="onClickBoard($event)"
             (dblclick)="onDblclickBoard($event)"
             (mouseup)="onMouseUpBoard($event)"
             (mousemove)="onMouseMove($event)"
             (wheel)="onWheelBoard($event)">
 
-            <!-- CONNECTING LINE -->
-            <line *ngIf="cLine"
-            [attr.x1]="cLine.x1"
-            [attr.y1]="cLine.y1"
-            [attr.x2]="cLine.x2"
-            [attr.y2]="cLine.y2"
-            [attr.stroke]="cLine.stroke"
-            [attr.stroke-width]="cLine.strokeWidth">
+                <g *ngIf="graph">
 
-            </line>
+                    <!-- CONNECTING LINE -->
+                    <line *ngIf="cLine"
+                    [attr.x1]="cLine.x1"
+                    [attr.y1]="cLine.y1"
+                    [attr.x2]="cLine.x2"
+                    [attr.y2]="cLine.y2"
+                    [attr.stroke]="cLine.stroke"
+                    [attr.stroke-width]="cLine.strokeWidth">
 
-            <!-- LOOPS -->
-            <circle *ngFor="let loop of graph.loops"
-            [attr.cx]="loop.cx"
-            [attr.cy]="loop.cy"
-            [attr.r]="loop.r"
-            [attr.fill]="loop.fill"
-            [attr.stroke]="loop.stroke"
-            [attr.stroke-width]="loop.strokeWidth"
-            (click)="onClickLoop(loop.id)">
-                <title>
-                    {{ loop.id }}
-                </title>
-            </circle>
+                    </line>
 
-            <!-- EDGES -->
-            <line *ngFor="let edge of graph.edges"
-            [attr.x1]="edge.x1"
-            [attr.y1]="edge.y1"
-            [attr.x2]="edge.x2"
-            [attr.y2]="edge.y2"
-            [attr.stroke]="edge.stroke"
-            [attr.stroke-width]="edge.strokeWidth"
-            (click)="onClickEdge(edge.id)">
-                <title>
-                    {{ edge.id }}
-                </title>
-            </line>
+                    <!-- LOOPS -->
+                    <circle *ngFor="let loop of graph.loops"
+                    [attr.cx]="loop.cx"
+                    [attr.cy]="loop.cy"
+                    [attr.r]="loop.r"
+                    [attr.fill]="loop.fill"
+                    [attr.stroke]="loop.stroke"
+                    [attr.stroke-width]="loop.strokeWidth"
+                    (click)="onClickLoop(loop.id)">
+                        <title>
+                            {{ loop.id }}
+                        </title>
+                    </circle>
 
-            <!-- VERTICES -->
-            <circle *ngFor="let vertex of graph.vertices"
-            [attr.cx]="vertex.cx"
-            [attr.cy]="vertex.cy"
-            [attr.r]="vertex.r"
-            [attr.fill]="vertex.fill"
-            [attr.stroke]="vertex.stroke"
-            [attr.stroke-width]="vertex.strokeWidth"
-            (click)="onClickVertex($event, vertex.id)"
-            (dblclick)="onDblclickVertex($event, vertex.id)"
-            (mousedown)="onMouseDownVertex($event, vertex.id)"
-            (mouseup)="onMouseUpVertex($event, vertex.id)">
-                <title>
-                    {{ vertex.id }}
-                </title>
-            </circle>
+                    <!-- ARROWS IF DIGRAPH -->
+                    <!-- <polygon 
+                    points="100,100 150,150 150,100"
+                    fill="black" />      -->
 
+                    <!-- EDGES -->
+                    <line *ngFor="let edge of graph.edges"
+                    [attr.x1]="edge.x1"
+                    [attr.y1]="edge.y1"
+                    [attr.x2]="edge.x2"
+                    [attr.y2]="edge.y2"
+                    [attr.stroke]="edge.stroke"
+                    [attr.stroke-width]="edge.strokeWidth"
+                    (click)="onClickEdge(edge.id)">
+                        <title>
+                            {{ edge.id }}
+                        </title>
+                    </line>
+
+                    <!-- VERTICES -->
+                    <circle *ngFor="let vertex of graph.vertices"
+                    [attr.cx]="vertex.cx"
+                    [attr.cy]="vertex.cy"
+                    [attr.r]="vertex.r"
+                    [attr.fill]="vertex.fill"
+                    [attr.stroke]="vertex.stroke"
+                    [attr.stroke-width]="vertex.strokeWidth"
+                    (click)="onClickVertex($event, vertex.id)"
+                    (dblclick)="onDblclickVertex($event, vertex.id)"
+                    (mousedown)="onMouseDownVertex($event, vertex.id)"
+                    (mouseup)="onMouseUpVertex($event, vertex.id)">
+                        <title>
+                            {{ vertex.id }}
+                        </title>
+                    </circle>
+
+                </g>
             </svg>
         </div>
-        <div class="col-12 col-md-1">
-
-        </div>
-        <div class="col-12 col-md-3">
+        <!-- <div class="col-12 col-md-3">
             <div class="card">
                 <div class="card-header" style="text-align: center">
                     <h5>Graph Info</h5>
@@ -81,6 +99,6 @@
                 <div class="card-body">
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </div>

@@ -44,7 +44,7 @@ export class GraphDrawService {
     bfsTreeRoot.fill = this.getRandomColor();
     for (let i = 0; i < vertices.length; i++) {
       for (let j = 0; j < T[i].length; j++) {
-        const edge = edges[graph.getEdgeByVerticesIds(i, T[i][j]).id];
+        const edge = edges[graph.getEdgeByVerticesIds(i, T[i][j]) ? graph.getEdgeByVerticesIds(i, T[i][j]).id : graph.getEdgeByVerticesIds(T[i][j], i).id];
         graph.getVertexById(T[i][j]).fill = randomColor;
         edge.stroke = randomColor;
       }
