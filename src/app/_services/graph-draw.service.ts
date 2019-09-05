@@ -44,9 +44,26 @@ export class GraphDrawService {
     bfsTreeRoot.fill = this.getRandomColor();
     for (let i = 0; i < vertices.length; i++) {
       for (let j = 0; j < T[i].length; j++) {
-        const edge = edges[graph.getEdgeByVerticesIds(i, T[i][j]) ? graph.getEdgeByVerticesIds(i, T[i][j]).id : graph.getEdgeByVerticesIds(T[i][j], i).id];
-        graph.getVertexById(T[i][j]).fill = randomColor;
-        edge.stroke = randomColor;
+        if (graph.isDigraph) {
+          let edges: Edge[] = [];
+          if (graph.getEdgeByVerticesIds(i, T[i][j]))
+            edges.push(graph.getEdgeByVerticesIds(i, T[i][j]));
+          if (graph.getEdgeByVerticesIds(T[i][j], i))
+            edges.push(graph.getEdgeByVerticesIds(T[i][j], i));
+          edges.forEach(e => {
+            e.stroke = randomColor;
+          });
+          graph.getVertexById(T[i][j]).fill = randomColor;
+          // color arrows
+          if (graph.getEdgeByVerticesIds(i, T[i][j])) {
+            const id = graph.getEdgeByVerticesIds(i, T[i][j]).id.toString()
+            document.getElementById('arrow' + id).setAttribute('fill', randomColor);
+          }
+        } else {
+          const edge = edges[graph.getEdgeByVerticesIds(i, T[i][j]) ? graph.getEdgeByVerticesIds(i, T[i][j]).id : graph.getEdgeByVerticesIds(T[i][j], i).id];
+          graph.getVertexById(T[i][j]).fill = randomColor;
+          edge.stroke = randomColor;
+        }
       }
     }
   }

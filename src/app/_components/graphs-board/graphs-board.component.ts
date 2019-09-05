@@ -48,6 +48,17 @@ export class GraphsBoardComponent implements OnInit {
     this.cLine = this.graphService.cLine;
   }
 
+  setMarkerId(id: number): string {
+    let markerUrl = 'arrow' + id.toString();
+    return markerUrl; 
+  }
+
+
+  getMarkerId(id: number): string {
+    let markerUrl = 'url(#arrow' + id.toString() + ')';
+    return markerUrl; 
+  }
+
   // Events
   onClickBoard(e: MouseEvent) {
     if (this.isBoardActive) {
@@ -132,8 +143,6 @@ export class GraphsBoardComponent implements OnInit {
       console.table(this.graph.edges);
       console.log('%cLOOPS: ', 'font-weight: 700; color: red')
       console.table(this.graph.loops);
-      console.log('%cARROWS: ', 'font-weight: 700; color: darksalmon')
-      console.table(this.graph.arrows);
     }
 
   @HostListener('document:keydown', ['$event'])
