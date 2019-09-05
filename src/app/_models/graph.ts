@@ -136,9 +136,11 @@ export class Graph {
         if (e.v1 === vertex.id) {
             e.x1 = vertex.cx;
             e.y1 = vertex.cy;
+            e.calcNewPoints();
         } else if (e.v2 === vertex.id) {
             e.x2 = vertex.cx;
             e.y2 = vertex.cy;
+            e.calcNewPoints();
         }
         });
     }

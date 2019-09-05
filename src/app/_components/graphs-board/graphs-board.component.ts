@@ -29,7 +29,6 @@ export class GraphsBoardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
   }
 
   initNewGraph() {
@@ -39,7 +38,7 @@ export class GraphsBoardComponent implements OnInit {
   }
 
   initNewDigraph() {
-    // TODO
+    this.graphService.initNewDigraph();
     this.updateGraphView();
     this.isBoardActive = true;
   }
@@ -86,9 +85,7 @@ export class GraphsBoardComponent implements OnInit {
   }
 
   onDblclickBoard(e: MouseEvent) {
-    console.log('dblclick');
     if (this.isBoardActive) {
-      console.log('dblclick active');
       this.graphService.handleBoardEvent(e, this.mode);
       this.updateGraphView();
     }
@@ -135,6 +132,8 @@ export class GraphsBoardComponent implements OnInit {
       console.table(this.graph.edges);
       console.log('%cLOOPS: ', 'font-weight: 700; color: red')
       console.table(this.graph.loops);
+      console.log('%cARROWS: ', 'font-weight: 700; color: darksalmon')
+      console.table(this.graph.arrows);
     }
 
   @HostListener('document:keydown', ['$event'])

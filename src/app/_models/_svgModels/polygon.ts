@@ -3,7 +3,7 @@ export class Polygon {
     protected _id: number;
     protected _x: number[];
     protected _y: number[];
-    protected _points: string;
+    protected _points: string = '';
     protected _fill: string;
 
     constructor(

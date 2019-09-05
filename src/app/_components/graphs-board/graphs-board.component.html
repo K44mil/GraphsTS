@@ -2,7 +2,7 @@
     <div class="row" style="margin-bottom: 5px;">
         <div class="col-12 col-md-7">
             <button class="btn btn-success" (click)="initNewGraph()">NEW GRAPH</button>
-            <button class="btn btn-info" style="margin-left: 5px;">NEW DIGRAPH</button>
+            <button class="btn btn-info" style="margin-left: 5px;" (click)="initNewDigraph()">NEW DIGRAPH</button>
             <button class="btn btn-danger" style="margin-left: 5px; ">SAVE</button>
         </div>     
     </div>
@@ -25,8 +25,7 @@
             (mousemove)="onMouseMove($event)"
             (wheel)="onWheelBoard($event)">
 
-                <g *ngIf="graph">
-
+                <g *ngIf="graph && !graph.isDigraph">
                     <!-- CONNECTING LINE -->
                     <line *ngIf="cLine"
                     [attr.x1]="cLine.x1"
@@ -50,12 +49,7 @@
                         <title>
                             {{ loop.id }}
                         </title>
-                    </circle>
-
-                    <!-- ARROWS IF DIGRAPH -->
-                    <!-- <polygon 
-                    points="100,100 150,150 150,100"
-                    fill="black" />      -->
+                    </circle>     
 
                     <!-- EDGES -->
                     <line *ngFor="let edge of graph.edges"
@@ -87,8 +81,71 @@
                             {{ vertex.id }}
                         </title>
                     </circle>
-
                 </g>
+
+                <g *ngIf="graph && graph.isDigraph">
+                    <!-- CONNECTING LINE -->
+                    <line *ngIf="cLine"
+                    [attr.x1]="cLine.x1"
+                    [attr.y1]="cLine.y1"
+                    [attr.x2]="cLine.x2"
+                    [attr.y2]="cLine.y2"
+                    [attr.stroke]="cLine.stroke"
+                    [attr.stroke-width]="cLine.strokeWidth">
+
+                    </line>
+
+                    <!-- LOOPS -->
+                    <circle *ngFor="let loop of graph.loops"
+                    [attr.cx]="loop.cx"
+                    [attr.cy]="loop.cy"
+                    [attr.r]="loop.r"
+                    [attr.fill]="loop.fill"
+                    [attr.stroke]="loop.stroke"
+                    [attr.stroke-width]="loop.strokeWidth"
+                    (click)="onClickLoop(loop.id)">
+                        <title>
+                            {{ loop.id }}
+                        </title>
+                    </circle>  
+
+                    <!-- ARROWHEAD -->
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7"/>
+                        </marker>
+                    </defs>
+
+                    <!-- EDGES -->
+                    <polyline *ngFor="let edge of graph.edges"
+                    [attr.points]="edge.points"
+                    [attr.stroke]="edge.stroke"
+                    [attr.stroke-width]="edge.strokeWidth"
+                    marker-mid="url(#arrowhead)"
+                    (click)="onClickEdge(edge.id)">
+                        <title>
+                            {{ edge.id }}
+                        </title>
+                    </polyline>
+
+                    <!-- VERTICES -->
+                    <circle *ngFor="let vertex of graph.vertices"
+                    [attr.cx]="vertex.cx"
+                    [attr.cy]="vertex.cy"
+                    [attr.r]="vertex.r"
+                    [attr.fill]="vertex.fill"
+                    [attr.stroke]="vertex.stroke"
+                    [attr.stroke-width]="vertex.strokeWidth"
+                    (click)="onClickVertex($event, vertex.id)"
+                    (dblclick)="onDblclickVertex($event, vertex.id)"
+                    (mousedown)="onMouseDownVertex($event, vertex.id)"
+                    (mouseup)="onMouseUpVertex($event, vertex.id)">
+                        <title>
+                            {{ vertex.id }}
+                        </title>
+                    </circle>
+                </g>
+
             </svg>
         </div>
         <!-- <div class="col-12 col-md-3">

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Graph, Vertex, Edge, Loop } from '../_models';
+import { Graph, Vertex, Edge, Loop, Arrow } from '../_models';
 import { GraphCalcService } from './graph-calc.service';
 import { GraphDrawService } from './graph-draw.service';
 import { SvgGraphicsService } from './svg-graphics.service';
@@ -267,7 +267,9 @@ export class GraphService {
         this._edgeStartVertex = null;
       } else {
         if (this._graph.isDigraph) {
-          // TODO
+          if (!this.graph.getEdgeByVerticesIds(this._edgeStartVertex.id, vertex.id)) {
+            this.addNewEdge(this._edgeStartVertex, vertex);
+          }
         } else {
           if (!(this._graph.getEdgeByVerticesIds(this._edgeStartVertex.id, vertex.id)
                 || this._graph.getEdgeByVerticesIds(vertex.id, this._edgeStartVertex.id))) {
@@ -355,6 +357,13 @@ export class GraphService {
   private addNewEdge(v1: Vertex, v2: Vertex) {
     const id = this._graph.edges.length ?  this._graph.edges.length : 0;
     const edge = new Edge(id, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy);
+    if(this._graph.isDigraph) {
+      const id = this._graph.arrows.length ? this._graph.edges.length : 0;
+      const x = [edge.x2-15, edge.x2-30, edge.x2-30];
+      const y = [edge.y2, edge.y2+15, edge.y2-15];
+      const arrow = new Arrow(id, edge.id, x, y);
+      this._graph.arrows.push(arrow);
+    }
     this._graph.edges.push(edge);
   }
 

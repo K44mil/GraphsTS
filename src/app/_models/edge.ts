@@ -4,6 +4,7 @@ export class Edge extends Line {
 
     private _v1: number;
     private _v2: number;
+    private _points: string;
     private _weight: number;
     private _factor: number;
     private _isActive: boolean;
@@ -28,6 +29,13 @@ export class Edge extends Line {
         this._weight = weight;
         this._factor = factor;
         this._isActive = isActive;
+        this._points = '';
+
+        const arrowX = (((x1 + x2) / 2) + x2) / 2
+        const arrowY = (((y1 + y2) / 2) + y2) / 2;
+        this._points += x1.toString() + ',' + y1.toString()
+                     + ' ' + arrowX.toString() + ',' + arrowY.toString()
+                     + ' ' + x2.toString() + ',' + y2.toString();
     }
 
     // Public methods
@@ -52,6 +60,15 @@ export class Edge extends Line {
         this._stroke = 'black';
         this._strokeWidth = 3;
     }
+
+    calcNewPoints() {
+        const arrowX = (((this._x1 + this._x2) / 2) + this._x2) / 2
+        const arrowY = (((this._y1 + this._y2) / 2) + this._y2) / 2;
+        this._points = '';
+        this._points += this._x1.toString() + ',' + this._y1.toString()
+                     + ' ' + arrowX.toString() + ',' + arrowY.toString()
+                     + ' ' + this._x2.toString() + ',' + this._y2.toString();
+    }
     
     // Getters and Setters
     get v1(): number {
@@ -68,6 +85,14 @@ export class Edge extends Line {
 
     set v2(val: number) {
         this._v2 = val;
+    }
+
+    get points(): string {
+        return this._points;
+    }
+
+    set points(val: string) {
+        this._points = val;
     }
 
     get weight(): number {
