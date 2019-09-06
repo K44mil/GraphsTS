@@ -3,6 +3,9 @@ import { GraphService } from '../../_services/graph.service';
 import { Graph } from '../../_models';
 import { Line } from '../../_models/_svgModels/line';
 
+import * as jspdf from 'jspdf';
+import html2canvas from 'html2canvas';
+
 @Component({
   selector: 'app-graphs-board',
   templateUrl: './graphs-board.component.html',
@@ -66,6 +69,31 @@ export class GraphsBoardComponent implements OnInit {
     if (this.isBoardActive) {
       this.lineGraph = this.graphService.showLineGraph();
     }
+  }
+
+  transposeGraph() {
+    if (this.isBoardActive) {
+      if (this.graph.isDigraph) {
+        this.graphService.transposeGraph();
+        this.updateGraphView();
+      }
+    }
+  }
+
+  downloadPDF() {
+    const data = document.getElementById('svgGraphsBoard');
+    html2canvas(data).then(canvas => {
+      let imgWidth = 208;
+      let pageHeight = 295;
+      let imgHeight = canvas.height * imgWidth / canvas.width;
+      let heightLeft = imgHeight;
+
+      const contentDataURL = canvas.toDataURL('image/png');
+      let pdf = new jspdf('p', 'mm', 'a4');
+      let position = 2;
+      pdf.addImage(contentDataURL, 'PNG', 1, position, imgWidth, imgHeight);
+      pdf.save('graph.pdf');
+    });
   }
 
   // Events
@@ -196,8 +224,8 @@ export class GraphsBoardComponent implements OnInit {
       case 'd':
         this.graphService.deleteSelectedElements();
         break;
-      case 'm':
-        this.graphService.colorTree();
+      case 't':
+        // TEST CODE
         break;
     }
   }

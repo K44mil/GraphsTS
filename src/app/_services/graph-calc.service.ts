@@ -286,4 +286,40 @@ export class GraphCalcService {
     return lineGraph;
   }
 
-}
+  transposeMatrix(matrix: number[][]): number[][] {
+    let newMatrix: number[][] = [];
+    for (let i = 0; i < matrix.length; i++) {
+      newMatrix[i] = [];
+    }
+
+    for (let i = 0; i < matrix.length; i++) {
+      for (let j = 0; j < matrix[i].length; j++) {
+        newMatrix[j][i] = matrix[i][j];
+      }
+    }
+    return newMatrix;
+  }
+
+  transposeGraph(graph: Graph): Graph {
+    let newGraph = graph;
+    const aMatrix = this.createAdjacencyMatrix(graph);
+    const tMatrix = this.transposeMatrix(aMatrix);
+    newGraph.edges = [];
+
+    let edgeId = 0;
+    for (let i = 0; i < tMatrix.length; i++) {
+      for (let j = 0; j < tMatrix[i].length; j++) {
+        if (i == j) 
+          continue;     
+        if (tMatrix[i][j] === 1) {
+          const v1 = newGraph.getVertexById(i);
+          const v2 = newGraph.getVertexById(j);
+          newGraph.edges.push(new Edge(edgeId++, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy));
+        }
+      }
+    }
+    return newGraph;
+  }
+
+  }
+

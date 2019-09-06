@@ -5,6 +5,7 @@
             <button class="btn btn-info" style="margin-left: 5px;" (click)="initNewDigraph()">NEW DIGRAPH</button>
             <button class="btn btn-danger" style="margin-left: 5px;" disabled="true">SAVE</button>
             <button class="btn btn-warning" style="margin-left: 5px;" disabled="true">LOAD</button>
+            <button class="btn btn-danger" style="margin-left: 5px;" (click)="downloadPDF()" [disabled]="!graph">DOWNLOAD PDF</button>
         </div>     
     </div>
     <div class="row">
@@ -240,16 +241,20 @@
         <div class="col-12 col-md-1">
 
         </div>
-        <div class="col-12 col-md-3">
+        <div class="col-12 col-md-3" *ngIf="graph">
             <div class="card">
                 <div class="card-header" style="text-align: center">
                     <h5>Menu</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-12">
-                            <button class="btn btn-dark" style="width: 100%" (click)="showLineGraph()">SHOW LINE GRAPH</button>
-                        </div>
+                    <div class="row"> 
+                         <button class="btn btn-dark" style="width: 70%; margin: 5px auto;" (click)="transposeGraph()" [disabled]="!graph.isDigraph">DIGRAPH TRANSPOSITION</button>
+                         <button class="btn btn-secondary" style="width: 70%; margin: 5px auto;" (click)="showLineGraph()">SHOW LINE GRAPH</button>
+                         <button class="btn btn-dark" style="width: 70%; margin: 5px auto;" disabled="true">FIND ANY PATH</button>
+                         <button class="btn btn-secondary" style="width: 70%; margin: 5px auto;" disabled="true">FIND CONNECTED COMPONENTS</button>
+                         <button class="btn btn-dark" style="width: 70%; margin: 5px auto;" disabled="true">BREADTH FIRST SPANNING TREE</button>
+                         <button class="btn btn-secondary" style="width: 70%; margin: 5px auto;">...</button>
+                         <button class="btn btn-dark" style="width: 70%; margin: 5px auto;">...</button>        
                     </div>
                 </div>
             </div>

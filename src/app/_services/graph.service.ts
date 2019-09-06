@@ -357,6 +357,10 @@ export class GraphService {
     return this.graphCalcService.createLineGraph(this._graph);
   }
 
+  transposeGraph() {
+    this._graph = this.graphCalcService.transposeGraph(this._graph);
+  }
+
   // Private Methods
   private addNewEdge(v1: Vertex, v2: Vertex) {
     const id = this._graph.edges.length ?  this._graph.edges.length : 0;
