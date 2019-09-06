@@ -25,6 +25,7 @@
             (mousemove)="onMouseMove($event)"
             (wheel)="onWheelBoard($event)">
 
+                <!-- GRAPH  -->
                 <g *ngIf="graph && !graph.isDigraph">
                     <!-- CONNECTING LINE -->
                     <line *ngIf="cLine"
@@ -83,6 +84,42 @@
                     </circle>
                 </g>
 
+                <!-- SHOW LINE GRAPH -->
+                <g *ngIf="lineGraph && !graph.isDigraph">
+
+                    <!-- LOOPS -->
+                    <circle *ngFor="let loop of lineGraph.loops"
+                    [attr.cx]="loop.cx"
+                    [attr.cy]="loop.cy"
+                    [attr.r]="loop.r"
+                    [attr.fill]="loop.fill"
+                    [attr.stroke]="loop.stroke"
+                    [attr.stroke-width]="loop.strokeWidth">
+
+                    </circle>     
+
+                    <!-- EDGES -->
+                    <line *ngFor="let edge of lineGraph.edges"
+                    [attr.x1]="edge.x1"
+                    [attr.y1]="edge.y1"
+                    [attr.x2]="edge.x2"
+                    [attr.y2]="edge.y2"
+                    [attr.stroke]="edge.stroke"
+                    [attr.stroke-width]="edge.strokeWidth">
+                    </line>
+
+                    <!-- VERTICES -->
+                    <circle *ngFor="let vertex of lineGraph.vertices"
+                    [attr.cx]="vertex.cx"
+                    [attr.cy]="vertex.cy"
+                    [attr.r]="vertex.r"
+                    [attr.fill]="vertex.fill"
+                    [attr.stroke]="vertex.stroke"
+                    [attr.stroke-width]="vertex.strokeWidth">
+                    </circle>
+                </g>
+
+                    <!-- DIGRAPH -->
                 <g *ngIf="graph && graph.isDigraph">
                     <!-- CONNECTING LINE -->
                     <line *ngIf="cLine"
@@ -148,14 +185,25 @@
 
             </svg>
         </div>
-        <!-- <div class="col-12 col-md-3">
+        <div class="col-12 col-md-1">
+
+        </div>
+        <div class="col-12 col-md-3">
             <div class="card">
                 <div class="card-header" style="text-align: center">
-                    <h5>Graph Info</h5>
+                    <h5>Menu</h5>
                 </div>
                 <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <button class="btn btn-dark" style="width: 100%" (click)="showLineGraph()">SHOW LINE GRAPH</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div> -->
+        </div>
+        <div class="col-12 col-md-1">
+
+        </div>
     </div>
 </div>

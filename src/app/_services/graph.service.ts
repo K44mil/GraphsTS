@@ -353,6 +353,10 @@ export class GraphService {
     this._selectedElements = [];
   }
 
+  showLineGraph() {
+    return this.graphCalcService.createLineGraph(this._graph);
+  }
+
   // Private Methods
   private addNewEdge(v1: Vertex, v2: Vertex) {
     const id = this._graph.edges.length ?  this._graph.edges.length : 0;
@@ -492,57 +496,6 @@ export class GraphService {
   //       e.setUnhighlighted();
   //     }
   //   });
-  // }
-
-  // lineGraphEdgeExists(v1: number, v2: number): boolean {
-  //   let result: boolean = false;
-  //   this._lineGraphEdges.forEach(e => {
-  //     if ((e.v1 === v1 && e.v2 === v2) || (e.v1 === v2 && e.v2 === v1)) {
-  //       result = true;
-  //     }
-  //   });
-  //   return result;
-  // }
-
-  // createLineGraph() {
-  //   this._lineGraphvertices = [];
-  //   this._lineGraphEdges = [];
-  //   this.updateAdjacencyMatrix();
-
-  //   for (let i = 0; i < this._edges.length; i++) {
-  //     const e = this._edges[i]; 
-  //     this._lineGraphvertices.push(new Vertex(i, (e.x1 + e.x2) / 2, (e.y1 + e.y2) / 2, 15));
-  //   }
-
-  //   let edgeId = 0;
-  //   for (let v = 0; v < this._vertices.length; v++) {
-  //     for (let u = 0; u < this._vertices.length; u++) {
-  //       if (this._adjacencyMatrix[v][u] === 1) {
-  //         const index_vu = this.getEdgeIdByverticesIds(v, u);
-  //         // console.log('%c' + v + ' - ' + u, 'color: blue'); 
-  //         for (let w = 0; w < this._vertices.length; w++) {
-  //           if (this._adjacencyMatrix[u][w] === 1) {
-  //             if (w === v)
-  //               continue;
-  //             // console.log('%c' + u + ' - ' + w, 'color: green');
-  //             const index_uw = this.getEdgeIdByverticesIds(u, w);
-  //             // console.log('%c(' + index_vu + ' - ' + index_uw + ')', 'color: red');
-  //             let v1 = this._lineGraphvertices[index_vu];
-  //             let v2 = this._lineGraphvertices[index_uw];
-  //             // console.log('%c(' + v1.id + ' - ' + v2.id + ')', 'color: yellow');
-  //             if (!(this.lineGraphEdgeExists(v1.id, v2.id) || this.lineGraphEdgeExists(v2.id, v1.id)))
-  //               this._lineGraphEdges.push(new Edge(edgeId++, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy));         
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-
-  // setLineGraphActive() {
-  //   this.initNewGraph();
-  //   this._vertices = this._lineGraphvertices;
-  //   this._edges = this._lineGraphEdges;
   // }
 
   // setPathHighlighted(path: number[]) {

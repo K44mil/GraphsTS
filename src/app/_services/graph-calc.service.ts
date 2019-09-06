@@ -240,4 +240,41 @@ export class GraphCalcService {
     return T;
   }
 
+  // takes graph and returns its line graph
+  createLineGraph(graph: Graph): Graph {
+    let lineGraph: Graph = new Graph(-1);
+    const { vertices, edges } = graph;
+    const aMatrix = this.createAdjacencyMatrix(graph);
+    for (let i = 0; i < edges.length; i++) {
+      const e = edges[i]; 
+      lineGraph.vertices.push(new Vertex(i, (e.x1 + e.x2) / 2, (e.y1 + e.y2) / 2, 15, 'red'));
+    }
+    let edgeId = 0;
+    for (let v = 0; v < vertices.length; v++) {
+      for (let u = 0; u < vertices.length; u++) {
+        if (aMatrix[v][u] === 1) {
+          const edge_vu = graph.getEdgeByVerticesIds(v, u) || graph.getEdgeByVerticesIds(u, v);
+          const index_vu = edge_vu.id;
+          // console.log('%c' + v + ' - ' + u, 'color: blue'); 
+          for (let w = 0; w < vertices.length; w++) {
+            if (aMatrix[u][w] === 1) {
+              if (w === v)
+                continue;
+              // console.log('%c' + u + ' - ' + w, 'color: green');
+              const edge_uw = graph.getEdgeByVerticesIds(u, w) || graph.getEdgeByVerticesIds(w, u);
+              const index_uw = edge_uw.id;
+              // console.log('%c(' + index_vu + ' - ' + index_uw + ')', 'color: red');
+              let v1 = lineGraph.vertices[index_vu];
+              let v2 = lineGraph.vertices[index_uw];
+              // console.log('%c(' + v1.id + ' - ' + v2.id + ')', 'color: yellow');
+              if (!(lineGraph.edgeExists(v1.id, v2.id) || lineGraph.edgeExists(v2.id, v1.id)))
+                lineGraph.edges.push(new Edge(edgeId++, v1.id, v2.id, v1.cx, v1.cy, v2.cx, v2.cy, 0, 0, false, 'red'));         
+            }
+          }
+        }
+      }
+    }
+    return lineGraph;
+  }
+
 }

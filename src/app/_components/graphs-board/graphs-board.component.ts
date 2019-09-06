@@ -11,6 +11,7 @@ import { Line } from '../../_models/_svgModels/line';
 export class GraphsBoardComponent implements OnInit {
 
   graph: Graph;
+  lineGraph: Graph;
   cLine: Line;
   /**
      * MODES:
@@ -57,6 +58,10 @@ export class GraphsBoardComponent implements OnInit {
   getMarkerId(id: number): string {
     let markerUrl = 'url(#arrow' + id.toString() + ')';
     return markerUrl; 
+  }
+
+  showLineGraph() {
+    this.lineGraph = this.graphService.showLineGraph();
   }
 
   // Events
