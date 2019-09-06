@@ -36,12 +36,14 @@ export class GraphsBoardComponent implements OnInit {
     this.graphService.initNewGraph();
     this.updateGraphView();
     this.isBoardActive = true;
+    this.lineGraph = null;
   }
 
   initNewDigraph() {
     this.graphService.initNewDigraph();
     this.updateGraphView();
     this.isBoardActive = true;
+    this.lineGraph = null;
   }
 
   updateGraphView() {
@@ -61,7 +63,9 @@ export class GraphsBoardComponent implements OnInit {
   }
 
   showLineGraph() {
-    this.lineGraph = this.graphService.showLineGraph();
+    if (this.isBoardActive) {
+      this.lineGraph = this.graphService.showLineGraph();
+    }
   }
 
   // Events

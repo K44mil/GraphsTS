@@ -3,7 +3,8 @@
         <div class="col-12 col-md-7">
             <button class="btn btn-success" (click)="initNewGraph()">NEW GRAPH</button>
             <button class="btn btn-info" style="margin-left: 5px;" (click)="initNewDigraph()">NEW DIGRAPH</button>
-            <button class="btn btn-danger" style="margin-left: 5px; ">SAVE</button>
+            <button class="btn btn-danger" style="margin-left: 5px;" disabled="true">SAVE</button>
+            <button class="btn btn-warning" style="margin-left: 5px;" disabled="true">LOAD</button>
         </div>     
     </div>
     <div class="row">
@@ -148,7 +149,13 @@
 
                     <!-- ARROW -->
                     <defs>
-                        <marker *ngFor="let edge of graph.edges" [attr.id]="setMarkerId(edge.id)" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                        <marker *ngFor="let edge of graph.edges" 
+                        [attr.id]="setMarkerId(edge.id)" 
+                        markerWidth="10" 
+                        markerHeight="7" 
+                        refX="0" 
+                        refY="3.5" 
+                        orient="auto">
                             <polygon points="0 0, 10 3.5, 0 7"/>
                         </marker>
                     </defs>
@@ -182,6 +189,51 @@
                         </title>
                     </circle>
                 </g>
+
+                <!-- SHOW LINE DIGRAPH -->
+                <g *ngIf="lineGraph && graph.isDigraph">
+
+                        <!-- LOOPS -->
+                        <circle *ngFor="let loop of lineGraph.loops"
+                        [attr.cx]="loop.cx"
+                        [attr.cy]="loop.cy"
+                        [attr.r]="loop.r"
+                        [attr.fill]="loop.fill"
+                        [attr.stroke]="loop.stroke"
+                        [attr.stroke-width]="loop.strokeWidth">
+                        </circle>     
+                        
+                        <!-- ARROW -->
+                        <defs>
+                            <marker *ngFor="let edge of graph.edges" 
+                            id="lineDigraphArrow" 
+                            markerWidth="10" 
+                            markerHeight="7" 
+                            refX="0" 
+                            refY="3.5" 
+                            orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="red"/>
+                            </marker>
+                        </defs>
+
+                        <!-- EDGES -->
+                        <polyline *ngFor="let edge of lineGraph.edges"
+                        [attr.points]="edge.points"
+                        [attr.stroke]="edge.stroke"
+                        [attr.stroke-width]="edge.strokeWidth"
+                        marker-mid="url(#lineDigraphArrow)">
+                        </polyline>
+    
+                        <!-- VERTICES -->
+                        <circle *ngFor="let vertex of lineGraph.vertices"
+                        [attr.cx]="vertex.cx"
+                        [attr.cy]="vertex.cy"
+                        [attr.r]="vertex.r"
+                        [attr.fill]="vertex.fill"
+                        [attr.stroke]="vertex.stroke"
+                        [attr.stroke-width]="vertex.strokeWidth">
+                        </circle>
+                    </g>
 
             </svg>
         </div>
