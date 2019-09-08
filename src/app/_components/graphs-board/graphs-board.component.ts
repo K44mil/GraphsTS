@@ -5,6 +5,8 @@ import { Line } from '../../_models/_svgModels/line';
 
 import * as jspdf from 'jspdf';
 import html2canvas from 'html2canvas';
+import { AlertService } from 'src/app/_services/alert.service';
+import { Alert } from '../../_models/alert';
 
 @Component({
   selector: 'app-graphs-board',
@@ -16,6 +18,7 @@ export class GraphsBoardComponent implements OnInit {
   graph: Graph;
   lineGraph: Graph;
   cLine: Line;
+  alert: Alert;
   /**
      * MODES:
      * 0 - draw graph
@@ -29,7 +32,8 @@ export class GraphsBoardComponent implements OnInit {
   mode: number = 0;
 
   constructor(
-    private graphService: GraphService
+    private graphService: GraphService,
+    private alertService: AlertService
   ) { }
 
   ngOnInit() {
@@ -52,6 +56,7 @@ export class GraphsBoardComponent implements OnInit {
   updateGraphView() {
     this.graph = this.graphService.graph;
     this.cLine = this.graphService.cLine;
+    this.alert = this.alertService.alert;
   }
 
   setMarkerId(id: number): string {
